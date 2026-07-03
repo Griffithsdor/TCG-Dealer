@@ -5,13 +5,17 @@ import "./index.css";
 import App from "./App";
 import CardDetail from "./pages/CardDetail";
 import Explore from "./pages/Explore";
+import Home from "./pages/Home";
+import Screener from "./pages/Screener";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
     children: [
-      { index: true, element: <Explore /> },
+      { index: true, element: <Home /> },
+      { path: "explore", element: <Explore /> },
+      { path: "screener", element: <Screener /> },
       { path: "cards/:id", element: <CardDetail /> },
     ],
   },
