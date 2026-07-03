@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install tooling
+        run: pip install ruff pytest
+
+      - name: Install core package
+        run: pip install -e packages/core
+
+      - name: Install service deps
+        run: |
+          pip install -r services/ingestion/requirements.txt
+          pip install -r services/analytics/requirements.txt
+
+      - name: Lint
+        run: ruff check packages services
+
+      - name: Compile check (sintaxis)
+        run: python -m compileall packages services
+
+      - name: Tests (ingestion)
+        run: PYTHONPATH=services/ingestion pytest services/ingestion/tests -q
+
+      - name: Tests (analytics)
+        run: PYTHONPATH=services/analytics pytest services/analytics/tests -q

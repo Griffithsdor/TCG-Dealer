@@ -1,0 +1,74 @@
+name: Deploy
+
+# Despliegue a AWS: construye la imagen, la sube a ECR y aplica Terraform.
+# Requiere (una vez, tras el bootstrap):
+#   secret  AWS_ROLE_ARN     -> output github_actions_role_arn
+#   var     TF_STATE_BUCKET  -> output state_bucket del bootstrap
+#   var     TF_LOCK_TABLE    -> output lock_table del bootstrap
+#   var     AWS_REGION       -> p.ej. us-east-1 (opcional, default us-east-1)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["services/**", "packages/**", "deploy/**", "terraform/**"]
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.7.5"
+
+      - name: Escribir backend.hcl
+        run: |
+          cat > backend.hcl <<EOF
+          bucket         = "${{ vars.TF_STATE_BUCKET }}"
+          key            = "dev/terraform.tfstate"
+          region         = "${{ env.AWS_REGION }}"
+          dynamodb_table = "${{ vars.TF_LOCK_TABLE }}"
+          encrypt        = true
+          EOF
+
+      - name: Terraform init
+        run: terraform init -backend-config=backend.hcl
+
+      - name: Crear ECR (si no existe)
+        run: terraform apply -target=aws_ecr_repository.app -auto-approve -input=false
+
+      - name: Capturar URL de ECR
+        id: ecr
+        run: echo "url=$(terraform output -raw ecr_repository_url)" >> "$GITHUB_OUTPUT"
+
+      - uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build & push imagen
+        working-directory: .
+        run: |
+          IMG="${{ steps.ecr.outputs.url }}:${{ github.sha }}"
+          docker build -f deploy/Dockerfile -t "$IMG" .
+          docker push "$IMG"
+
+      - name: Terraform apply (todo)
+        run: terraform apply -auto-approve -input=false -var="image_tag=${{ github.sha }}"
+
+      - name: Mostrar URL de la API
+        run: terraform output -raw api_url

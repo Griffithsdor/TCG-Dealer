@@ -1,0 +1,14 @@
+# Copia a terraform.tfvars y ajusta.
+aws_region  = "us-east-1"
+project     = "tcg"
+env         = "dev"
+
+github_org  = "Griffithsdor"
+github_repo = "TCG-Dealer"
+
+# Aurora Serverless v2 (mín. 0 ACU = scale-to-zero).
+# aurora_max_acu                  = 4
+# aurora_seconds_until_auto_pause = 3600
+
+# Restringe el acceso a la BD a tu IP (recomendado si solo accedes tú):
+# db_allowed_cidr = "TU.IP.PUBLICA.AQUI/32"

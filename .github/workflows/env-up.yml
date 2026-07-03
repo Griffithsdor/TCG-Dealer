@@ -1,0 +1,64 @@
+name: env-up
+
+# Enciende el entorno: terraform apply recrea el ALB + listener y repunta
+# CloudFront (que nunca se destruye, dominio estable), y escala la API a 1.
+# Usa la imagen que ya está en ECR (no reconstruye).
+
+on:
+  schedule:
+    - cron: "0 13 * * *" # 13:00 UTC diario (quítalo si prefieres encender a mano)
+  workflow_dispatch: {}
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: env-onoff
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+  NAME: ${{ vars.TF_NAME || 'tcg-dev' }}
+
+jobs:
+  up:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.7.5"
+
+      - name: Terraform init
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" \
+            -backend-config="key=dev/terraform.tfstate" \
+            -backend-config="region=${{ env.AWS_REGION }}" \
+            -backend-config="dynamodb_table=${{ vars.TF_LOCK_TABLE }}"
+
+      - name: Terraform apply (recrea ALB, repunta CloudFront)
+        run: |
+          set -euo pipefail
+          export AWS_PAGER=""
+          IMAGE_TAG=$(aws ecr describe-images --repository-name "${NAME}-app" \
+            --query 'sort_by(imageDetails,&imagePushedAt)[-1].imageTags[0]' --output text)
+          echo "image_tag=$IMAGE_TAG"
+          terraform apply -input=false -auto-approve -var="image_tag=$IMAGE_TAG"
+
+      - name: Escalar API a 1
+        run: |
+          export AWS_PAGER=""
+          aws ecs update-service --cluster "${NAME}-cluster" --service "${NAME}-api" \
+            --desired-count 1 >/dev/null
+          echo "entorno encendido."

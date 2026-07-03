@@ -1,0 +1,7 @@
+# Config del backend S3. Copia a backend.hcl y rellena con lo que cree bootstrap/.
+# Uso: terraform init -backend-config=backend.hcl
+bucket         = "tcg-tfstate-<ACCOUNT_ID>"
+key            = "dev/terraform.tfstate"
+region         = "us-east-1"
+dynamodb_table = "tcg-tflock"
+encrypt        = true

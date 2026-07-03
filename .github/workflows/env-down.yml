@@ -1,0 +1,52 @@
+name: env-down
+
+# Apaga el entorno para no pagar de más: escala la API a 0 y BORRA el ALB
+# (mata su ~$16/mes). Solo CLI (sin Terraform), así no puede romper la config;
+# env-up reconcilia por la mañana. Aurora se auto-pausa sola (scale-to-zero), no
+# hay que pararla. Los jobs siguen corriendo (tareas puntuales que se auto-crean).
+
+on:
+  schedule:
+    - cron: "0 3 * * *" # 03:00 UTC diario (ajústalo a tu gusto)
+  workflow_dispatch: {}
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: env-onoff
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+  NAME: ${{ vars.TF_NAME || 'tcg-dev' }}
+
+jobs:
+  down:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Escalar API a 0 y borrar ALB
+        run: |
+          set -euo pipefail
+          export AWS_PAGER=""
+
+          echo ">> API desired-count -> 0"
+          aws ecs update-service --cluster "${NAME}-cluster" --service "${NAME}-api" \
+            --desired-count 0 >/dev/null 2>&1 || echo "   (servicio no encontrado / ya en 0)"
+
+          echo ">> borrar ALB (mata su coste horario + IPv4)"
+          ALB_ARN=$(aws elbv2 describe-load-balancers --names "${NAME}-alb" \
+            --query 'LoadBalancers[0].LoadBalancerArn' --output text 2>/dev/null || echo "none")
+          if [ "$ALB_ARN" != "none" ] && [ -n "$ALB_ARN" ] && [ "$ALB_ARN" != "None" ]; then
+            aws elbv2 delete-load-balancer --load-balancer-arn "$ALB_ARN"
+            echo "   ALB borrado"
+          else
+            echo "   ALB ya no existe"
+          fi
+          echo "listo: entorno apagado. CloudFront sigue (dominio estable)."

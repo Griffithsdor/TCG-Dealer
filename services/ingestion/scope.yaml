@@ -1,0 +1,47 @@
+# =============================================================================
+# Política de alcance de cartas — versión enfocada.
+#
+# Pokémon:   solo "Special Illustration Rare".
+# One Piece: solo "SEC Alternate Art", "SR Alternate Art" y "Manga".
+#
+# Motor de reglas: una carta entra si cumple CUALQUIER regla de su juego.
+# Dentro de una regla, las condiciones se combinan con AND; cada condición
+# (`rarity_any` / `name_any`) se cumple si el texto contiene ALGUNO de sus
+# términos (subcadena, insensible a mayúsculas).
+#
+# NOTA: los términos exactos de rareza/nombre que usa tcgapi.dev se confirman
+# en la primera ejecución real. Usa `python demo.py --list-rarities` para ver
+# las rarezas y nombres reales y ajustar estos valores con precisión.
+# =============================================================================
+
+version: 2
+
+games:
+  pokemon:
+    min_market_price: 0
+    manual_include: []
+    manual_exclude: []
+    rules:
+      - label: "Special Illustration Rare"
+        rarity_any: ["special illustration rare"]
+
+  one_piece:
+    # Solo rarezas SEC y SR, y solo sus VARIANTES especiales (marca en el nombre:
+    # "(Alternate Art)", "(Parallel)", "(SP)", "(Manga)"...). Las SEC/SR base
+    # (sin marca) y todo lo que no sea SEC/SR se ignora.
+    min_market_price: 0
+    manual_include: []
+    manual_exclude: []
+    rules:
+      - label: "SEC variante"
+        rarity_any: ["sec"]              # matchea "SEC" y "Secret Rare"
+        name_any: &variantes
+          - "alternate art"
+          - "parallel"
+          - "full art"
+          - "(sp)"
+          - "(tr)"
+          - "manga"
+      - label: "SR variante"
+        rarity_any: ["sr", "super rare"] # "sr" no es subcadena de "super rare"
+        name_any: *variantes
