@@ -61,7 +61,7 @@ def list_cards(game: str | None = None, limit: int = 50, offset: int = 0) -> dic
             JOIN games g ON g.id = c.game_id
             LEFT JOIN card_variants cv ON cv.card_id = c.id
             LEFT JOIN analytics_snapshots snap ON snap.variant_id = cv.id
-            WHERE (%s IS NULL OR g.code = %s)
+            WHERE (%s::text IS NULL OR g.code = %s)
             ORDER BY snap.price_current DESC NULLS LAST
             LIMIT %s OFFSET %s
             """,
