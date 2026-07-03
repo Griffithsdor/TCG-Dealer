@@ -50,8 +50,3 @@ output "cognito_user_pool_id" {
 output "cognito_app_client_id" {
   value = aws_cognito_user_pool_client.this.id
 }
-
-output "github_actions_role_arn" {
-  description = "ARN del rol OIDC de GitHub Actions (secreto/var AWS_ROLE_ARN)"
-  value       = aws_iam_role.github_actions.arn
-}
