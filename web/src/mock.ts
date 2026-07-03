@@ -26,6 +26,7 @@ export type FullCard = {
   set_name: string;
   release_date: string;
   artist: string;
+  language: string;
   image_url: string;
 
   // Mercado consolidado + por fuente
@@ -52,11 +53,18 @@ export type FullCard = {
   active_listings: number;
   liquidity: "alta" | "media" | "baja";
 
-  // Inversión
-  market_cap: number;
+  // Inversión (raw)
+  market_cap: number; // precio raw × población raw
+  raw_pop: number;
   holders: number;
-  ath: number;
-  atl: number;
+  ath: number; // máx 52 semanas
+  atl: number; // mín 52 semanas
+  pct_from_high: number; // % vs máx 52s (≤ 0)
+  pct_from_low: number; // % vs mín 52s (≥ 0)
+  premium_psa10: number; // múltiplo PSA10 / raw
+
+  // Grading: costo estimado (NO se incluye en el ROI que mostramos).
+  grading_cost: number;
 
   // Señales
   signal: "buy" | "hold" | "sell";
@@ -180,7 +188,8 @@ function build(s: Seed): FullCard {
     { grade: "Raw", price: s.price, pop: Math.round(s.holders * 6) },
     { grade: "PSA 9", price: +(s.price * 1.7).toFixed(2), pop: Math.round(s.holders * 0.9) },
     { grade: "PSA 10", price: +(s.price * 3.4).toFixed(2), pop: Math.round(s.holders * 0.35) },
-    { grade: "BGS 9.5", price: +(s.price * 2.6).toFixed(2), pop: Math.round(s.holders * 0.18) },
+    { grade: "BGS 9.5", price: +(s.price * 2.8).toFixed(2), pop: Math.round(s.holders * 0.18) },
+    { grade: "CGC 10", price: +(s.price * 3.1).toFixed(2), pop: Math.round(s.holders * 0.12) },
   ];
 
   const tcg = s.price;
@@ -207,6 +216,9 @@ function build(s: Seed): FullCard {
     };
   });
 
+  const rawPop = graded[0].pop; // población raw
+  const psa10p = graded.find((g) => g.grade === "PSA 10")!.price;
+  const gradingCost = 25; // envío + slab estimado (referencia, no entra al ROI)
   const liquidity = s.holders > 1000 ? "alta" : s.holders > 500 ? "media" : "baja";
   const rationale =
     signal === "buy"
@@ -226,6 +238,7 @@ function build(s: Seed): FullCard {
     set_name: SET.name,
     release_date: SET.release,
     artist: s.artist,
+    language: "EN",
     image_url: `https://product-images.tcgplayer.com/fit-in/400x400/${s.img}.jpg`,
     price_current: s.price,
     currency: "USD",
@@ -241,10 +254,15 @@ function build(s: Seed): FullCard {
     sales_volume_30d: Math.round(20 + rand() * 120),
     active_listings: Math.round(15 + rand() * 90),
     liquidity,
-    market_cap: Math.round(s.price * s.holders * 6),
+    market_cap: Math.round(s.price * rawPop),
+    raw_pop: rawPop,
     holders: s.holders,
     ath,
     atl,
+    pct_from_high: +(((s.price - ath) / ath) * 100).toFixed(1),
+    pct_from_low: +(((s.price - atl) / atl) * 100).toFixed(1),
+    premium_psa10: +(psa10p / s.price).toFixed(1),
+    grading_cost: gradingCost,
     signal,
     rsi_14: r,
     sma_30: sma30,

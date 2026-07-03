@@ -1,0 +1,798 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TCCheese — Brandbook & Sistema de Diseño</title>
+<script>document.documentElement.classList.add('js')</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&family=Spline+Sans+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* neutrals — cool, chroma ~0; the warmth lives in cheddar, never the paper */
+  --paper:#ffffff; --surface:#f6f6f7; --surface-2:#ededf0;
+  --border:#e5e5e9; --border-strong:#cbcbd3;
+  --ink-950:#0e0f13; --ink-900:#16171d; --ink-800:#23252d;
+  --ink-700:#2f313b; --ink-600:#494c58; --ink-500:#6a6d7a; --ink-400:#9a9daa;
+  /* cheddar — brand primary */
+  --cheddar-50:#fdf4e3; --cheddar-100:#f9e6c2; --cheddar-200:#f3d193;
+  --cheddar-300:#eebc63; --cheddar-400:#e9a83f; --cheddar-500:#e29a24;
+  --cheddar-600:#c9820f; --cheddar-700:#a2660a; --rind:#7a4d08;
+  /* market semantics */
+  --up:#0fa66e; --up-text:#097a51; --up-tint:#e3f6ee;
+  --down:#dc3a4e; --down-text:#c1263a; --down-tint:#fdeaed;
+  --info:#2f6bff; --info-tint:#e9effd;
+  /* type */
+  --display:"Bricolage Grotesque",serif;
+  --sans:"Hanken Grotesk",system-ui,sans-serif;
+  --mono:"Spline Sans Mono",ui-monospace,monospace;
+  /* space + radius */
+  --r-sm:8px; --r-md:12px; --r-lg:18px; --r-xl:28px;
+  --maxw:1160px;
+  /* z */
+  --z-nav:40; --z-sticky:30;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{
+  margin:0; background:var(--paper); color:var(--ink-700);
+  font-family:var(--sans); font-size:16px; line-height:1.7;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+h1,h2,h3,h4{font-family:var(--display); color:var(--ink-900); letter-spacing:-0.03em; line-height:1.05; margin:0; text-wrap:balance; font-weight:700}
+p{margin:0 0 1rem; max-width:68ch}
+a{color:var(--rind); text-underline-offset:3px}
+.mono{font-family:var(--mono); font-variant-numeric:tabular-nums}
+.tnum{font-variant-numeric:tabular-nums}
+.up{color:var(--up-text)} .down{color:var(--down-text)}
+
+/* ---------- layout shell ---------- */
+.layout{display:grid; grid-template-columns:248px 1fr; gap:0; max-width:1440px; margin:0 auto}
+.side{
+  position:sticky; top:0; align-self:start; height:100vh; overflow-y:auto;
+  border-right:1px solid var(--border); padding:26px 20px 40px; background:var(--paper);
+  z-index:var(--z-nav);
+}
+.side .brand{display:flex; align-items:center; gap:10px; margin-bottom:22px}
+.side .brand b{font-family:var(--display); font-weight:800; font-size:19px; color:var(--ink-900); letter-spacing:-0.03em}
+.nav-group{font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-400); font-weight:600; margin:18px 0 6px}
+.side a.nav{display:block; text-decoration:none; color:var(--ink-600); font-size:13.5px; padding:5px 10px; border-radius:7px; margin:1px 0; transition:background .15s,color .15s}
+.side a.nav:hover{background:var(--surface); color:var(--ink-900)}
+.side a.nav.active{background:var(--cheddar-50); color:var(--rind); font-weight:600}
+.main{min-width:0}
+.wrap{max-width:var(--maxw); margin:0 auto; padding:0 clamp(20px,4vw,56px)}
+section{padding:clamp(56px,7vw,104px) 0; border-bottom:1px solid var(--border); scroll-margin-top:20px}
+.kicker{display:inline-flex; align-items:center; gap:8px; font-family:var(--mono); font-size:12px; color:var(--cheddar-700); font-weight:500; margin-bottom:14px}
+.kicker .n{color:var(--ink-400)}
+.lead{font-size:clamp(1.05rem,1.6vw,1.28rem); color:var(--ink-600); max-width:60ch; line-height:1.6}
+
+/* ---------- hero ---------- */
+.hero{background:var(--ink-950); color:#f3f3f5; border-bottom:none; position:relative; overflow:hidden; padding:clamp(64px,9vw,120px) 0}
+.hero h1{color:#fff; font-weight:800; font-size:clamp(2.7rem,7vw,5.4rem); letter-spacing:-0.04em; line-height:0.95}
+.hero .cheddar{color:var(--cheddar-400)}
+.hero .lead{color:#b9bcc6; max-width:52ch}
+.hero-tag{font-family:var(--mono); font-size:12px; color:var(--cheddar-400); letter-spacing:.04em; margin-bottom:22px; display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+.hero-tag span{opacity:.5; color:#8b8e99}
+.hero-meta{display:flex; gap:28px; flex-wrap:wrap; margin-top:38px; padding-top:26px; border-top:1px solid #26272f}
+.hero-meta div{font-size:13px; color:#8b8e99}
+.hero-meta b{display:block; font-family:var(--mono); font-size:20px; color:#fff; font-weight:500}
+.hero-glow{position:absolute; inset:auto -10% -60% auto; width:60%; height:120%; background:radial-gradient(closest-side, rgba(226,154,36,.16), transparent 70%); pointer-events:none}
+
+/* ---------- primitives ---------- */
+.grid{display:grid; gap:22px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+.panel{background:var(--paper); border:1px solid var(--border); border-radius:var(--r-md); padding:22px}
+.panel.soft{background:var(--surface); border-color:transparent}
+.tag{display:inline-block; font-family:var(--mono); font-size:11px; padding:3px 8px; border-radius:6px; background:var(--surface-2); color:var(--ink-600)}
+.h-label{font-family:var(--mono); font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-400); font-weight:500; margin-bottom:10px}
+.rule{height:1px; background:var(--border); border:0; margin:0}
+hr{border:0;height:1px;background:var(--border);margin:28px 0}
+ul.clean{list-style:none; padding:0; margin:0}
+ul.clean li{padding:9px 0; border-bottom:1px solid var(--border); display:flex; gap:12px; align-items:baseline}
+ul.clean li:last-child{border-bottom:0}
+ul.clean li .mono{color:var(--ink-400); font-size:12px; min-width:22px}
+
+/* reveal — visible by default; only hidden once JS confirms it can animate */
+.js .reveal{opacity:0; transform:translateY(16px)}
+.js .reveal.in{opacity:1; transform:none; transition:opacity .6s cubic-bezier(.22,1,.36,1),transform .6s cubic-bezier(.22,1,.36,1)}
+@media (prefers-reduced-motion:reduce){.js .reveal{opacity:1;transform:none;transition:none}}
+
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr}
+  .side{position:static; height:auto; border-right:0; border-bottom:1px solid var(--border); display:flex; flex-wrap:wrap; gap:2px 4px; align-items:center}
+  .side .brand{width:100%}
+  .side .nav-group{display:none}
+  .side a.nav{padding:4px 9px; font-size:12.5px}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- ============ SIDE NAV ============ -->
+<aside class="side">
+  <div class="brand">
+    <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#0e0f13"/><path d="M7 21.5 L16 8 L25 21.5 Z" fill="#e29a24"/><circle cx="14.2" cy="17.6" r="1.5" fill="#0e0f13"/><circle cx="18.4" cy="19" r="1.15" fill="#0e0f13"/><rect x="15.2" y="4.5" width="1.6" height="4.5" rx=".8" fill="#e29a24"/></svg>
+    <b>TCCheese</b>
+  </div>
+  <a class="nav" href="#overview">Resumen</a>
+  <div class="nav-group">Estrategia</div>
+  <a class="nav" href="#positioning">Posicionamiento</a>
+  <a class="nav" href="#map">Mapa competitivo</a>
+  <a class="nav" href="#audience">Audiencia</a>
+  <a class="nav" href="#voice">Personalidad & voz</a>
+  <a class="nav" href="#naming">Naming & tagline</a>
+  <div class="nav-group">Identidad</div>
+  <a class="nav" href="#logo">Logo</a>
+  <a class="nav" href="#color">Color</a>
+  <a class="nav" href="#type">Tipografía</a>
+  <a class="nav" href="#icons">Iconos & data-viz</a>
+  <a class="nav" href="#mood">Moodboard</a>
+  <div class="nav-group">Sistema UI</div>
+  <a class="nav" href="#components">Componentes</a>
+  <a class="nav" href="#screens">Pantallas</a>
+  <a class="nav" href="#motion">Motion</a>
+  <a class="nav" href="#a11y">Accesibilidad</a>
+  <a class="nav" href="#tokens">Tokens</a>
+</aside>
+
+<main class="main">
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="hero-glow"></div>
+  <div class="wrap">
+    <div class="hero-tag">BRANDBOOK v1.0 <span>/</span> ONE PIECE · POKÉMON TCG <span>/</span> JULIO 2026</div>
+    <h1>El terminal financiero<br>de las cartas.<br><span class="cheddar">Haz queso.</span></h1>
+    <p class="lead">TCCheese convierte el coleccionismo en análisis. Precios, señales, portafolio y screening con el rigor de un Bloomberg y cero solemnidad de más.</p>
+    <div class="hero-meta">
+      <div><b>#E29A24</b>Cheddar · color insignia</div>
+      <div><b>Aa</b>Bricolage + Hanken + Spline Mono</div>
+      <div><b>Rigor · Ingenio</b>Tono de marca</div>
+      <div><b>Claro</b>Base editorial · app oscura</div>
+    </div>
+  </div>
+</header>
+
+<!-- ============ OVERVIEW ============ -->
+<section id="overview" class="wrap reveal">
+  <div class="kicker"><span class="n">00</span> Resumen de marca</div>
+  <h2 style="font-size:clamp(1.8rem,3vw,2.6rem); max-width:20ch">Un producto serio con la lengua un poco afuera.</h2>
+  <p class="lead" style="margin-top:16px">TCCheese es la primera plataforma que trata una colección de cartas como lo que ya es: una cartera de activos. La promesa, tomar en serio el dinero del coleccionista, es rigurosa. La marca que la envuelve es cálida, ágil y con humor. "Cheese" es doble: es el <em>cheddar</em> de nuestro color y es <em>guita, plata, queso</em>. Ese doble sentido es la marca entera en una palabra.</p>
+  <div class="grid g4" style="margin-top:30px">
+    <div class="panel"><div class="h-label">Qué es</div><p style="margin:0; font-size:14px; color:var(--ink-600)">Análisis financiero + portafolio de cartas TCG. Screener, señales, comparación y explore.</p></div>
+    <div class="panel"><div class="h-label">Para quién</div><p style="margin:0; font-size:14px; color:var(--ink-600)">Coleccionistas-inversores que ya usan Collectr y consultan TCGplayer para precios.</p></div>
+    <div class="panel"><div class="h-label">Cómo suena</div><p style="margin:0; font-size:14px; color:var(--ink-600)">Preciso primero, ingenioso después. Nunca payaso, nunca acartonado.</p></div>
+    <div class="panel"><div class="h-label">Cómo se ve</div><p style="margin:0; font-size:14px; color:var(--ink-600)">Editorial claro para marketing, terminal oscuro para la app. Cheddar como firma.</p></div>
+  </div>
+</section>
+
+<!-- ============ POSITIONING ============ -->
+<section id="positioning" class="wrap reveal">
+  <div class="kicker"><span class="n">01</span> Estrategia · Posicionamiento</div>
+  <div class="grid g2" style="align-items:start">
+    <div>
+      <h2 style="font-size:clamp(1.6rem,2.6vw,2.2rem)">La declaración</h2>
+      <p style="margin-top:14px; font-size:1.12rem; color:var(--ink-700)">Para el <b>coleccionista que piensa como inversor</b>, TCCheese es la <b>plataforma de inteligencia de precios</b> que combina el rigor analítico de un terminal financiero con la usabilidad de una app de colección, porque tus cartas <b>ya son</b> un portafolio y merecen leerse como uno.</p>
+      <div class="panel soft" style="margin-top:22px">
+        <div class="h-label">Promesa de marca</div>
+        <p style="margin:0; font-family:var(--display); font-weight:700; font-size:1.4rem; color:var(--ink-900); letter-spacing:-.02em; line-height:1.15">"Lee el mercado antes de abrir el sobre."</p>
+      </div>
+    </div>
+    <div>
+      <div class="h-label">Pilares de marca</div>
+      <ul class="clean">
+        <li><span class="mono">01</span><div><b>Rigor legible.</b> Datos de nivel financiero explicados para humanos. Indicadores reales, sin jerga gratuita.</div></li>
+        <li><span class="mono">02</span><div><b>El coleccionista al mando.</b> Portafolio, watchlist y alertas propias. La plataforma sirve a tu colección, no al revés.</div></li>
+        <li><span class="mono">03</span><div><b>Fuente-agnóstica y honesta.</b> Si una API cierra, cambiamos el adaptador, no la verdad. Mostramos de dónde sale cada precio.</div></li>
+        <li><span class="mono">04</span><div><b>Ingenio con criterio.</b> El humor está en el copy y los detalles, jamás en los números.</div></li>
+      </ul>
+    </div>
+  </div>
+  <div class="grid g3" style="margin-top:28px">
+    <div class="panel"><div class="h-label">Misión</div><p style="margin:0; color:var(--ink-700)">Darle a cada coleccionista las herramientas que hoy solo tiene un trader.</p></div>
+    <div class="panel"><div class="h-label">Visión</div><p style="margin:0; color:var(--ink-700)">Que "revisar el TCCheese" sea el reflejo antes de comprar, vender o gradear una carta.</p></div>
+    <div class="panel"><div class="h-label">Anti-visión</div><p style="margin:0; color:var(--ink-700)">Otra tienda más. No vendemos cartas: te ayudamos a decidir sobre las tuyas.</p></div>
+  </div>
+</section>
+
+<!-- ============ COMPETITIVE MAP ============ -->
+<section id="map" class="wrap reveal">
+  <div class="kicker"><span class="n">02</span> Estrategia · Mapa competitivo</div>
+  <h2 style="font-size:clamp(1.6rem,2.6vw,2.2rem)">Dónde jugamos</h2>
+  <p class="lead" style="margin-top:12px">Dos ejes: <b>profundidad analítica</b> (de catálogo simple a terminal financiero) y <b>foco</b> (de marketplace/transacción a inteligencia/decisión). El hueco vacío (arriba a la derecha) es TCCheese.</p>
+  <div class="panel" style="margin-top:26px; padding:0; overflow:hidden">
+    <svg viewBox="0 0 720 420" width="100%" style="display:block" role="img" aria-label="Mapa de posicionamiento: TCGplayer y Collectr abajo, TradingView y Finviz a la izquierda, TCCheese arriba a la derecha">
+      <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#9a9daa"/></marker></defs>
+      <rect width="720" height="420" fill="#ffffff"/>
+      <rect x="392" y="40" width="288" height="150" fill="#fdf4e3"/>
+      <line x1="60" y1="380" x2="690" y2="380" stroke="#cbcbd3" stroke-width="1.5" marker-end="url(#ar)"/>
+      <line x1="60" y1="380" x2="60" y2="30" stroke="#cbcbd3" stroke-width="1.5" marker-end="url(#ar)"/>
+      <text x="694" y="384" font-family="Spline Sans Mono" font-size="11" fill="#6a6d7a" text-anchor="end" dy="16">+ analítica →</text>
+      <text x="52" y="26" font-family="Spline Sans Mono" font-size="11" fill="#6a6d7a">↑ + decisión</text>
+      <text x="70" y="400" font-family="Spline Sans Mono" font-size="10" fill="#9a9daa">marketplace</text>
+      <!-- dots -->
+      <g font-family="Hanken Grotesk" font-size="13" font-weight="600">
+        <circle cx="180" cy="330" r="7" fill="#23252d"/><text x="194" y="334" fill="#23252d">TCGplayer</text>
+        <text x="194" y="349" font-family="Spline Sans Mono" font-size="10" fill="#9a9daa">precio de referencia · tienda</text>
+        <circle cx="300" cy="255" r="7" fill="#23252d"/><text x="314" y="259" fill="#23252d">Collectr</text>
+        <text x="314" y="274" font-family="Spline Sans Mono" font-size="10" fill="#9a9daa">colección + valor de cartera</text>
+        <circle cx="180" cy="150" r="7" fill="#23252d"/><text x="194" y="154" fill="#23252d">TradingView / Finviz</text>
+        <text x="194" y="169" font-family="Spline Sans Mono" font-size="10" fill="#9a9daa">rigor financiero · otro activo</text>
+        <circle cx="540" cy="110" r="10" fill="#e29a24"/><text x="558" y="114" fill="#a2660a" font-weight="700">TCCheese</text>
+        <text x="558" y="130" font-family="Spline Sans Mono" font-size="10" fill="#c9820f">terminal + portafolio de cartas</text>
+      </g>
+    </svg>
+  </div>
+  <div class="grid g3" style="margin-top:24px">
+    <div class="panel"><div class="h-label">De TCGplayer tomamos</div><p style="margin:0; font-size:14px; color:var(--ink-600)">La autoridad del precio de referencia. Es el número que todos citan; lo integramos y lo contextualizamos.</p></div>
+    <div class="panel"><div class="h-label">De Collectr tomamos</div><p style="margin:0; font-size:14px; color:var(--ink-600)">La experiencia limpia de portafolio y el placer de ver tu colección crecer. Subimos la apuesta analítica.</p></div>
+    <div class="panel"><div class="h-label">De Finviz/TradingView tomamos</div><p style="margin:0; font-size:14px; color:var(--ink-600)">El lenguaje visual del screening, señales e indicadores. Lo traducimos al mundo de las cartas.</p></div>
+  </div>
+</section>
+
+<!-- ============ AUDIENCE ============ -->
+<section id="audience" class="wrap reveal">
+  <div class="kicker"><span class="n">03</span> Estrategia · Audiencia</div>
+  <h2 style="font-size:clamp(1.6rem,2.6vw,2.2rem)">Para quién construimos</h2>
+  <div class="grid g3" style="margin-top:24px">
+    <div class="panel">
+      <div style="width:38px;height:38px;border-radius:10px;background:var(--cheddar-50);display:flex;align-items:center;justify-content:center;font-size:18px">📈</div>
+      <h3 style="font-size:1.15rem; margin:14px 0 4px">El flipper</h3>
+      <div class="tag">primario</div>
+      <p style="margin:12px 0 0; font-size:14px; color:var(--ink-600)">Compra, espera, vende. Quiere señales de entrada/salida, spreads y volatilidad. Vive en la watchlist.</p>
+      <div class="h-label" style="margin-top:14px">Necesita</div><p style="margin:0;font-size:13px;color:var(--ink-500)">Screener, alertas, señales buy/sell, histórico.</p>
+    </div>
+    <div class="panel">
+      <div style="width:38px;height:38px;border-radius:10px;background:var(--cheddar-50);display:flex;align-items:center;justify-content:center;font-size:18px">🗂️</div>
+      <h3 style="font-size:1.15rem; margin:14px 0 4px">El coleccionista serio</h3>
+      <div class="tag">primario</div>
+      <p style="margin:12px 0 0; font-size:14px; color:var(--ink-600)">Ama sus cartas, pero quiere saber cuánto valen y cómo evoluciona su patrimonio sin volverse día-trader.</p>
+      <div class="h-label" style="margin-top:14px">Necesita</div><p style="margin:0;font-size:13px;color:var(--ink-500)">Portafolio, valor total, P&L, comparación.</p>
+    </div>
+    <div class="panel">
+      <div style="width:38px;height:38px;border-radius:10px;background:var(--surface-2);display:flex;align-items:center;justify-content:center;font-size:18px">🔎</div>
+      <h3 style="font-size:1.15rem; margin:14px 0 4px">El que investiga</h3>
+      <div class="tag">secundario</div>
+      <p style="margin:12px 0 0; font-size:14px; color:var(--ink-600)">Entra a explorar antes de un set nuevo o una reimpresión. Curiosidad primero, cuenta después.</p>
+      <div class="h-label" style="margin-top:14px">Necesita</div><p style="margin:0;font-size:13px;color:var(--ink-500)">Explore, rankings, gráficos públicos, SEO.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ VOICE ============ -->
+<section id="voice" class="wrap reveal">
+  <div class="kicker"><span class="n">04</span> Identidad · Personalidad & voz</div>
+  <h2 style="font-size:clamp(1.6rem,2.6vw,2.2rem)">Cheese con rigor</h2>
+  <p class="lead" style="margin-top:12px">Somos el analista que sabe de lo que habla y además cae bien. El dato manda; el chiste llega después y nunca a costa de la claridad.</p>
+
+  <div class="grid g2" style="margin-top:26px; align-items:start">
+    <div class="panel">
+      <div class="h-label">Ejes de personalidad</div>
+      <div id="spectra"></div>
+    </div>
+    <div class="panel">
+      <div class="h-label">Arquetipo</div>
+      <p style="margin:0 0 14px; color:var(--ink-700)"><b>El Sabio</b> con un toque de <b>Bufón</b>. Autoridad creíble (el Sabio) que no se toma a sí mismo demasiado en serio (el Bufón). El Bufón vive en el margen: microcopys, estados vacíos, notificaciones. Jamás en un número o una señal.</p>
+      <div class="h-label">Tres palabras</div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:6px">
+        <span class="tag" style="background:var(--cheddar-50); color:var(--rind)">Agudo</span>
+        <span class="tag" style="background:var(--cheddar-50); color:var(--rind)">Ingenioso</span>
+        <span class="tag" style="background:var(--cheddar-50); color:var(--rind)">Preciso</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-top:22px; align-items:start">
+    <div class="panel" style="border-color:var(--up)">
+      <div class="h-label" style="color:var(--up-text)">✓ Sí decimos</div>
+      <ul class="clean">
+        <li><div>"OP-05 Luffy subió 12% esta semana. El volumen acompaña, no es solo hype."</div></li>
+        <li><div>"Tu cartera hizo <b>+$340</b> este mes. Buen queso."</div></li>
+        <li><div>"Señal de compra: 3 indicadores alineados. Tú decides."</div></li>
+        <li><div>"Sin datos suficientes para una señal fiable. Preferimos callar a inventar."</div></li>
+      </ul>
+    </div>
+    <div class="panel" style="border-color:var(--down)">
+      <div class="h-label" style="color:var(--down-text)">✕ No decimos</div>
+      <ul class="clean">
+        <li><div>"¡¡ESTA CARTA VA A EXPLOTAR 🚀🚀 COMPRA YA!!"</div></li>
+        <li><div>"Aprovecha las sinergias de tu ecosistema de activos coleccionables."</div></li>
+        <li><div>"Garantizado que sube." <span class="tag" style="background:var(--down-tint);color:var(--down-text)">nunca prometas</span></div></li>
+        <li><div>Un chiste encima de una cifra de pérdida del usuario.</div></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="panel soft" style="margin-top:22px">
+    <div class="h-label">Léxico — di esto / no aquello</div>
+    <div class="grid g3">
+      <div><span class="mono up">queso / cheddar</span> <span style="color:var(--ink-400)">→</span> ganancias, plusvalía</div>
+      <div><span class="mono">señal</span> <span style="color:var(--ink-400)">→</span> no "consejo" ni "recomendación"</div>
+      <div><span class="mono">carta</span> / <span class="mono">activo</span> <span style="color:var(--ink-400)">→</span> según contexto; nunca "producto"</div>
+      <div><span class="mono">cartera</span> / <span class="mono">portafolio</span> <span style="color:var(--ink-400)">→</span> no "inventario"</div>
+      <div><span class="mono">leer el mercado</span> <span style="color:var(--ink-400)">→</span> no "predecir"</div>
+      <div><span class="mono down">enfriándose</span> <span style="color:var(--ink-400)">→</span> mejor que "cayendo en picada"</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ NAMING ============ -->
+<section id="naming" class="wrap reveal">
+  <div class="kicker"><span class="n">05</span> Identidad · Naming & tagline</div>
+  <h2 style="font-size:clamp(1.6rem,2.6vw,2.2rem)">El nombre y sus frases</h2>
+  <div class="grid g2" style="margin-top:22px; align-items:start">
+    <div class="panel">
+      <div class="h-label">TCCheese — cómo se escribe</div>
+      <p style="margin:0 0 10px; color:var(--ink-700)">Una sola palabra, dos C mayúsculas: <b>TC</b> (trading cards / trading &amp; collecting) + <b>Cheese</b>. Nunca "TC Cheese", "Tccheese" ni "TCcheese".</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
+        <span class="tag" style="background:var(--up-tint);color:var(--up-text)">✓ TCCheese</span>
+        <span class="tag" style="background:var(--down-tint);color:var(--down-text)">✕ TC Cheese</span>
+        <span class="tag" style="background:var(--down-tint);color:var(--down-text)">✕ Tccheese</span>
+      </div>
+      <div class="h-label" style="margin-top:18px">Pronunciación / hook</div>
+      <p style="margin:0; color:var(--ink-600); font-size:14px">"Cheese" = queso = <b>guita</b>. Todo el sistema de copy puede jugar con hacer, cortar, oler y contar queso.</p>
+    </div>
+    <div class="panel">
+      <div class="h-label">Taglines</div>
+      <ul class="clean">
+        <li><div><b>"Haz queso."</b> <span class="tag">principal · corto</span></div></li>
+        <li><div>"El terminal financiero de las cartas." <span class="tag">descriptivo</span></div></li>
+        <li><div>"Lee el mercado antes de abrir el sobre." <span class="tag">producto</span></div></li>
+        <li><div>"Tu colección ya es una cartera." <span class="tag">conversión</span></div></li>
+        <li><div>"Menos hype. Más datos." <span class="tag">diferenciador</span></div></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ LOGO ============ -->
+<section id="logo" class="wrap reveal">
+  <div class="kicker"><span class="n">06</span> Identidad · Logo</div>
+  <h2 style="font-size:clamp(1.6rem,2.6vw,2.2rem)">La marca</h2>
+  <p class="lead" style="margin-top:12px">El símbolo es una cuña de queso que también es una vela alcista: triángulo cheddar, dos agujeros, una mecha arriba. Coleccionismo y mercado en una sola forma.</p>
+
+  <div class="grid g2" style="margin-top:26px; align-items:stretch">
+    <div class="panel" style="display:flex; flex-direction:column; gap:18px; justify-content:center; align-items:center; background:var(--ink-950); border-color:var(--ink-950); min-height:280px">
+      <svg width="88" height="88" viewBox="0 0 32 32" aria-label="Símbolo TCCheese"><rect width="32" height="32" rx="9" fill="#16171d"/><path d="M6 22 L16 7 L26 22 Z" fill="#e29a24"/><circle cx="13.6" cy="17.4" r="1.7" fill="#16171d"/><circle cx="18.6" cy="19.2" r="1.3" fill="#16171d"/><rect x="15.1" y="2.8" width="1.8" height="5" rx=".9" fill="#e29a24"/></svg>
+      <div style="font-family:var(--display); font-weight:800; font-size:34px; color:#fff; letter-spacing:-.04em">TC<span style="color:#e29a24">Cheese</span></div>
+    </div>
+    <div class="grid" style="grid-template-columns:1fr 1fr; gap:14px">
+      <div class="panel" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:10px">
+        <svg width="52" height="52" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#0e0f13"/><path d="M6 22 L16 7 L26 22 Z" fill="#e29a24"/><circle cx="13.6" cy="17.4" r="1.7" fill="#0e0f13"/><circle cx="18.6" cy="19.2" r="1.3" fill="#0e0f13"/><rect x="15.1" y="2.8" width="1.8" height="5" rx=".9" fill="#e29a24"/></svg>
+        <span class="tag">símbolo · app icon</span>
+      </div>
+      <div class="panel" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:10px;background:var(--cheddar-500);border-color:var(--cheddar-500)">
+        <svg width="52" height="52" viewBox="0 0 32 32" aria-hidden="true"><path d="M6 24 L16 6 L26 24 Z" fill="#0e0f13"/><circle cx="13.6" cy="19" r="1.8" fill="#e29a24"/><circle cx="18.6" cy="20.6" r="1.35" fill="#e29a24"/></svg>
+        <span class="tag" style="background:rgba(0,0,0,.14);color:var(--ink-900)">mono · sobre cheddar</span>
+      </div>
+      <div class="panel" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px;grid-column:1/-1">
+        <div style="font-family:var(--display); font-weight:800; font-size:26px; color:var(--ink-900); letter-spacing:-.04em">TC<span style="color:var(--cheddar-600)">Cheese</span></div>
+        <span class="tag">wordmark · fondo claro</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid g3" style="margin-top:22px">
+    <div class="panel"><div class="h-label">Área de respeto</div><p style="margin:0;font-size:14px;color:var(--ink-600)">Deja al menos la altura del agujero grande del símbolo libre a cada lado. Nada invade esa zona.</p></div>
+    <div class="panel"><div class="h-label">Tamaño mínimo</div><p style="margin:0;font-size:14px;color:var(--ink-600)">Símbolo: 20px. Wordmark: 90px de ancho. Por debajo, los agujeros se cierran.</p></div>
+    <div class="panel"><div class="h-label">Usos incorrectos</div><p style="margin:0;font-size:14px;color:var(--ink-600)">No estirar, no rotar, no cambiar el cheddar por otro tono, no poner el wordmark cheddar sobre fondo claro.</p></div>
+  </div>
+</section>
+
+<!-- ============ COLOR ============ -->
+<section id="color" class="wrap reveal">
+  <div class="kicker"><span class="n">07</span> Identidad · Color</div>
+  <h2 style="font-size:clamp(1.6rem,2.6vw,2.2rem)">Cheddar sobre tinta</h2>
+  <p class="lead" style="margin-top:12px">Estrategia <b>comprometida</b>: un solo color de marca, el cheddar, hace todo el trabajo de identidad. Los neutros son fríos y de croma casi cero a propósito: la calidez vive en el cheddar, nunca en el papel. Así evitamos el beige-IA que satura al resto del sector.</p>
+
+  <div class="h-label" style="margin-top:28px">Cheddar · escala primaria</div>
+  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(96px,1fr)); gap:8px">
+    <div><div style="height:74px;border-radius:10px;background:var(--cheddar-50);border:1px solid var(--border)"></div><div class="mono" style="font-size:11px;margin-top:6px">50<br>#FDF4E3</div></div>
+    <div><div style="height:74px;border-radius:10px;background:var(--cheddar-100)"></div><div class="mono" style="font-size:11px;margin-top:6px">100<br>#F9E6C2</div></div>
+    <div><div style="height:74px;border-radius:10px;background:var(--cheddar-300)"></div><div class="mono" style="font-size:11px;margin-top:6px">300<br>#EEBC63</div></div>
+    <div><div style="height:74px;border-radius:10px;background:var(--cheddar-500);box-shadow:0 0 0 2px var(--cheddar-500),0 0 0 4px var(--paper),0 0 0 5px var(--cheddar-600)"></div><div class="mono" style="font-size:11px;margin-top:6px"><b style="color:var(--rind)">500 ★</b><br>#E29A24</div></div>
+    <div><div style="height:74px;border-radius:10px;background:var(--cheddar-600)"></div><div class="mono" style="font-size:11px;margin-top:6px">600<br>#C9820F</div></div>
+    <div><div style="height:74px;border-radius:10px;background:var(--cheddar-700)"></div><div class="mono" style="font-size:11px;margin-top:6px;color:var(--ink-600)">700 txt<br>#A2660A</div></div>
+    <div><div style="height:74px;border-radius:10px;background:var(--rind)"></div><div class="mono" style="font-size:11px;margin-top:6px;color:var(--ink-600)">rind<br>#7A4D08</div></div>
+  </div>
+
+  <div class="h-label" style="margin-top:28px">Tinta · neutros fríos</div>
+  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(96px,1fr)); gap:8px">
+    <div><div style="height:60px;border-radius:10px;background:var(--ink-950)"></div><div class="mono" style="font-size:11px;margin-top:6px">950<br>#0E0F13</div></div>
+    <div><div style="height:60px;border-radius:10px;background:var(--ink-900)"></div><div class="mono" style="font-size:11px;margin-top:6px">900<br>#16171D</div></div>
+    <div><div style="height:60px;border-radius:10px;background:var(--ink-700)"></div><div class="mono" style="font-size:11px;margin-top:6px">700 body<br>#2F313B</div></div>
+    <div><div style="height:60px;border-radius:10px;background:var(--ink-500)"></div><div class="mono" style="font-size:11px;margin-top:6px">500 mut<br>#6A6D7A</div></div>
+    <div><div style="height:60px;border-radius:10px;background:var(--ink-400)"></div><div class="mono" style="font-size:11px;margin-top:6px">400<br>#9A9DAA</div></div>
+    <div><div style="height:60px;border-radius:10px;background:var(--surface-2);border:1px solid var(--border)"></div><div class="mono" style="font-size:11px;margin-top:6px">surf-2<br>#EDEDF0</div></div>
+    <div><div style="height:60px;border-radius:10px;background:var(--paper);border:1px solid var(--border-strong)"></div><div class="mono" style="font-size:11px;margin-top:6px">paper<br>#FFFFFF</div></div>
+  </div>
+
+  <div class="h-label" style="margin-top:28px">Semántica de mercado — el único lugar donde entra el color fuera del cheddar</div>
+  <div class="grid g3" style="margin-top:4px">
+    <div class="panel" style="border-color:var(--up)">
+      <div style="display:flex;align-items:center;gap:10px"><div style="width:34px;height:34px;border-radius:8px;background:var(--up)"></div><div><b class="up">Sube / ganancia</b><div class="mono" style="font-size:11px;color:var(--ink-500)">#0FA66E · txt #097A51</div></div></div>
+      <p style="margin:12px 0 0;font-size:13px;color:var(--ink-600)">Siempre con ▲ además del color. El fondo tinte: <span style="background:var(--up-tint);padding:1px 6px;border-radius:4px" class="up">+12,4%</span></p>
+    </div>
+    <div class="panel" style="border-color:var(--down)">
+      <div style="display:flex;align-items:center;gap:10px"><div style="width:34px;height:34px;border-radius:8px;background:var(--down)"></div><div><b class="down">Baja / pérdida</b><div class="mono" style="font-size:11px;color:var(--ink-500)">#DC3A4E · txt #C1263A</div></div></div>
+      <p style="margin:12px 0 0;font-size:13px;color:var(--ink-600)">Siempre con ▼. Nunca rojo puro sobre cheddar. <span style="background:var(--down-tint);padding:1px 6px;border-radius:4px" class="down">−4,1%</span></p>
+    </div>
+    <div class="panel" style="border-color:var(--info)">
+      <div style="display:flex;align-items:center;gap:10px"><div style="width:34px;height:34px;border-radius:8px;background:var(--info)"></div><div><b style="color:var(--info)">Info / neutro</b><div class="mono" style="font-size:11px;color:var(--ink-500)">#2F6BFF</div></div></div>
+      <p style="margin:12px 0 0;font-size:13px;color:var(--ink-600)">Solo para enlaces informativos y estados neutros. Uso muy escaso.</p>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-top:24px">
+    <div class="panel soft"><div class="h-label">Reparto de color (regla 60/30/10)</div>
+      <div style="display:flex;height:26px;border-radius:6px;overflow:hidden;margin:6px 0 10px">
+        <div style="flex:60;background:var(--paper);border:1px solid var(--border)"></div>
+        <div style="flex:30;background:var(--ink-900)"></div>
+        <div style="flex:10;background:var(--cheddar-500)"></div>
+      </div>
+      <p style="margin:0;font-size:13px;color:var(--ink-600)">60% papel/neutros, 30% tinta (texto y estructura), 10% cheddar. El cheddar es un acento con criterio, no un baño.</p>
+    </div>
+    <div class="panel soft"><div class="h-label">Regla de oro del contraste</div>
+      <p style="margin:0;font-size:13px;color:var(--ink-600)">Texto sobre cheddar-500 va siempre en tinta-900, jamás en blanco (el amarillo no da 4.5:1 con blanco). El cheddar como texto solo a partir del 700 y en tamaños grandes.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TYPOGRAPHY ============ -->
+<section id="type" class="wrap reveal">
+  <div class="kicker"><span class="n">08</span> Identidad · Tipografía</div>
+  <h2 style="font-size:clamp(1.6rem,2.6vw,2.2rem)">Tres voces tipográficas</h2>
+  <p class="lead" style="margin-top:12px">Contraste real por eje, no dos grotescas casi iguales: una display con carácter, una sans neutra de trabajo y una monoespaciada para los números. Ninguna es un default de IA.</p>
+
+  <div class="grid" style="grid-template-columns:1fr; gap:16px; margin-top:26px">
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px"><div class="h-label" style="margin:0">Display · Bricolage Grotesque</div><span class="tag">titulares · voz</span></div>
+      <div style="font-family:var(--display);font-weight:800;font-size:clamp(2rem,5vw,3.4rem);color:var(--ink-900);letter-spacing:-.04em;line-height:1;margin-top:10px">Haz queso, no ruido.</div>
+      <div style="font-family:var(--display);font-size:15px;color:var(--ink-500);margin-top:10px">400 · 600 · 700 · 800 &nbsp; / &nbsp; carácter, tueste variable, un punto de descaro</div>
+    </div>
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px"><div class="h-label" style="margin:0">Texto & UI · Hanken Grotesk</div><span class="tag">cuerpo · interfaz</span></div>
+      <p style="font-family:var(--sans);font-size:1.05rem;color:var(--ink-700);margin:12px 0 0;max-width:62ch">La sans de trabajo: humanista, legible a cuerpo pequeño y con cifras tabulares para que las tablas cuadren. Aquí vive el 90% del texto de producto. 400 para leer, 500/600 para jerarquía, 700 para énfasis puntual.</p>
+    </div>
+    <div class="panel" style="background:var(--ink-950);border-color:var(--ink-950)">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px"><div class="h-label" style="margin:0;color:var(--ink-400)">Datos · Spline Sans Mono</div><span class="tag" style="background:#23252d;color:var(--cheddar-400)">tickers · cifras</span></div>
+      <div class="mono" style="color:#e6e7ea;font-size:1.15rem;margin-top:12px;letter-spacing:.01em">OP05-119 &nbsp; $248.30 &nbsp; <span style="color:#3ad39a">▲ 12.4%</span> &nbsp; <span style="color:#ff6274">▼ 4.1%</span></div>
+      <div class="mono" style="color:var(--ink-400);font-size:12px;margin-top:8px">Precios, tickers, deltas y ejes de gráfico. Nunca para párrafos.</div>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-top:22px">
+    <div class="panel"><div class="h-label">Escala modular (ratio ≥ 1.25, fluida)</div>
+      <ul class="clean" style="font-size:13px">
+        <li><span class="mono">display</span><div style="color:var(--ink-600)">clamp(2.6rem, 6vw, 4.75rem) · 800 · -0.04em</div></li>
+        <li><span class="mono">h2</span><div style="color:var(--ink-600)">clamp(1.6rem, 2.6vw, 2.2rem) · 700</div></li>
+        <li><span class="mono">h3</span><div style="color:var(--ink-600)">1.15–1.25rem · 700</div></li>
+        <li><span class="mono">body</span><div style="color:var(--ink-600)">1rem / 1.7 · 400</div></li>
+        <li><span class="mono">small</span><div style="color:var(--ink-600)">0.875rem · 500</div></li>
+        <li><span class="mono">micro</span><div style="color:var(--ink-600)">0.75rem mono · labels</div></li>
+      </ul>
+    </div>
+    <div class="panel"><div class="h-label">Reglas</div>
+      <ul class="clean" style="font-size:13.5px;color:var(--ink-600)">
+        <li><div>Líneas de texto entre 60 y 75 caracteres. Ni una más.</div></li>
+        <li><div><span class="mono tnum">tabular-nums</span> obligatorio en toda tabla y precio.</div></li>
+        <li><div>Display solo para titulares y cifras hero, jamás en párrafos largos.</div></li>
+        <li><div>Mayúsculas solo en labels micro, nunca en cuerpo.</div></li>
+        <li><div><span class="mono">text-wrap: balance</span> en h1–h3.</div></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ICONS & DATAVIZ ============ -->
+<section id="icons" class="wrap reveal">
+  <div class="kicker"><span class="n">09</span> Identidad · Iconos & data-viz</div>
+  <h2 style="font-size:clamp(1.6rem,2.6vw,2.2rem)">El lenguaje de los datos</h2>
+  <p class="lead" style="margin-top:12px">Aquí la marca se pone seria. Los gráficos son sobrios, densos y honestos. El ingenio se queda fuera del canvas: en un dato nunca hay chiste.</p>
+
+  <div class="grid g2" style="margin-top:26px; align-items:start">
+    <div class="panel" style="background:var(--ink-950);border-color:var(--ink-950)">
+      <div class="h-label" style="color:var(--ink-400)">Vela + volumen (modo terminal)</div>
+      <svg viewBox="0 0 420 200" width="100%" role="img" aria-label="Gráfico de velas de ejemplo con volumen">
+        <line x1="0" y1="60" x2="420" y2="60" stroke="#23252d"/><line x1="0" y1="110" x2="420" y2="110" stroke="#23252d"/>
+        <g stroke-width="2">
+          <line x1="30" y1="70" x2="30" y2="120" stroke="#3ad39a"/><rect x="24" y="82" width="12" height="30" fill="#3ad39a"/>
+          <line x1="70" y1="60" x2="70" y2="118" stroke="#3ad39a"/><rect x="64" y="72" width="12" height="34" fill="#3ad39a"/>
+          <line x1="110" y1="66" x2="110" y2="120" stroke="#ff6274"/><rect x="104" y="78" width="12" height="26" fill="#ff6274"/>
+          <line x1="150" y1="50" x2="150" y2="100" stroke="#3ad39a"/><rect x="144" y="60" width="12" height="30" fill="#3ad39a"/>
+          <line x1="190" y1="40" x2="190" y2="90" stroke="#3ad39a"/><rect x="184" y="48" width="12" height="34" fill="#3ad39a"/>
+          <line x1="230" y1="46" x2="230" y2="96" stroke="#ff6274"/><rect x="224" y="56" width="12" height="26" fill="#ff6274"/>
+          <line x1="270" y1="34" x2="270" y2="80" stroke="#3ad39a"/><rect x="264" y="42" width="12" height="30" fill="#3ad39a"/>
+          <line x1="310" y1="30" x2="310" y2="74" stroke="#3ad39a"/><rect x="304" y="36" width="12" height="30" fill="#3ad39a"/>
+          <line x1="350" y1="40" x2="350" y2="86" stroke="#ff6274"/><rect x="344" y="50" width="12" height="24" fill="#ff6274"/>
+          <line x1="390" y1="28" x2="390" y2="70" stroke="#e29a24"/><rect x="384" y="34" width="12" height="28" fill="#e29a24"/>
+        </g>
+        <g opacity=".55">
+          <rect x="24" y="160" width="12" height="24" fill="#3a3d47"/><rect x="64" y="150" width="12" height="34" fill="#3a3d47"/><rect x="104" y="166" width="12" height="18" fill="#3a3d47"/><rect x="144" y="154" width="12" height="30" fill="#3a3d47"/><rect x="184" y="146" width="12" height="38" fill="#3a3d47"/><rect x="224" y="164" width="12" height="20" fill="#3a3d47"/><rect x="264" y="150" width="12" height="34" fill="#3a3d47"/><rect x="304" y="144" width="12" height="40" fill="#3a3d47"/><rect x="344" y="160" width="12" height="24" fill="#3a3d47"/><rect x="384" y="150" width="12" height="34" fill="#e29a24"/>
+        </g>
+      </svg>
+      <div class="mono" style="font-size:11px;color:var(--ink-400);margin-top:8px">Verde/rojo = mercado. Cheddar = la vela actual / seleccionada.</div>
+    </div>
+    <div>
+      <div class="panel">
+        <div class="h-label">Sparklines (en tabla)</div>
+        <div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap">
+          <svg width="120" height="36" viewBox="0 0 120 36" aria-hidden="true"><polyline points="0,28 20,24 40,26 60,16 80,18 100,8 120,4" fill="none" stroke="var(--up)" stroke-width="2"/></svg>
+          <svg width="120" height="36" viewBox="0 0 120 36" aria-hidden="true"><polyline points="0,10 20,12 40,8 60,18 80,20 100,28 120,30" fill="none" stroke="var(--down)" stroke-width="2"/></svg>
+          <svg width="120" height="36" viewBox="0 0 120 36" aria-hidden="true"><polyline points="0,18 20,16 40,20 60,17 80,19 100,16 120,18" fill="none" stroke="var(--ink-400)" stroke-width="2"/></svg>
+        </div>
+        <div class="mono" style="font-size:11px;color:var(--ink-500);margin-top:10px">Sube · baja · plano. 1.5–2px, sin relleno, sin puntos.</div>
+      </div>
+      <div class="panel" style="margin-top:14px">
+        <div class="h-label">Principios de gráfico</div>
+        <ul class="clean" style="font-size:13px;color:var(--ink-600)">
+          <li><div>Data-ink al máximo: fuera rejillas gruesas, sombras y degradados.</div></li>
+          <li><div>El color codifica dirección, no decora.</div></li>
+          <li><div>Ejes en mono, etiquetas mínimas, tooltip on-demand.</div></li>
+          <li><div>Nunca un eje Y truncado que exagere un movimiento.</div></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel soft" style="margin-top:22px">
+    <div class="h-label">Set de iconos — línea 1.75px, esquinas 2px, rejilla 24px</div>
+    <div style="display:flex;gap:26px;flex-wrap:wrap;color:var(--ink-800)">
+      <span style="display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11px;color:var(--ink-500)"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M3 17l5-5 3 3 7-8"/><path d="M18 4h3v3"/></svg>watchlist</span>
+      <span style="display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11px;color:var(--ink-500)"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg>cartera</span>
+      <span style="display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11px;color:var(--ink-500)"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>screener</span>
+      <span style="display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11px;color:var(--ink-500)"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>explore</span>
+      <span style="display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11px;color:var(--ink-500)"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 3l2.5 5 5.5.8-4 3.9.9 5.5L12 21l-4.9-2.9.9-5.5-4-3.9 5.5-.8z"/></svg>señal</span>
+      <span style="display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11px;color:var(--ink-500)"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M6 8V6a6 6 0 0112 0v2"/><rect x="4" y="8" width="16" height="12" rx="2"/></svg>alerta</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MOODBOARD ============ -->
+<section id="mood" class="wrap reveal">
+  <div class="kicker"><span class="n">10</span> Identidad · Moodboard</div>
+  <h2 style="font-size:clamp(1.6rem,2.6vw,2.2rem)">El mundo visual</h2>
+  <p class="lead" style="margin-top:12px">Tres materiales conviven: el papel editorial de una revista financiera, la densidad de un terminal de trading y el guiño cálido del cheddar. Serio en la estructura, cálido en el detalle.</p>
+  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:24px">
+    <div style="grid-row:span 2;border-radius:var(--r-md);background:var(--ink-950);color:#fff;padding:20px;display:flex;flex-direction:column;justify-content:space-between;min-height:230px">
+      <div class="mono" style="font-size:11px;color:var(--cheddar-400)">TERMINAL</div>
+      <div style="font-family:var(--display);font-weight:800;font-size:1.5rem;letter-spacing:-.03em">Densidad<br>sin ruido</div>
+    </div>
+    <div style="border-radius:var(--r-md);background:var(--cheddar-500);padding:18px;min-height:108px;display:flex;align-items:flex-end"><div style="font-family:var(--display);font-weight:800;color:var(--ink-900);font-size:1.3rem;letter-spacing:-.03em">Cheddar cálido</div></div>
+    <div style="border-radius:var(--r-md);background:var(--surface);border:1px solid var(--border);padding:18px;min-height:108px;display:flex;align-items:flex-end"><div style="color:var(--ink-700);font-size:14px">Papel editorial, aire, grillas serias</div></div>
+    <div style="border-radius:var(--r-md);background:var(--cheddar-50);padding:18px;min-height:108px;display:flex;flex-direction:column;justify-content:center;gap:6px">
+      <svg width="90" height="30" viewBox="0 0 90 30" aria-hidden="true"><polyline points="0,24 18,20 36,22 54,10 72,12 90,3" fill="none" stroke="var(--rind)" stroke-width="2"/></svg>
+      <span class="mono" style="font-size:10px;color:var(--rind)">tendencia al alza</span>
+    </div>
+    <div style="border-radius:var(--r-md);background:var(--ink-900);padding:18px;min-height:108px;display:flex;align-items:center;justify-content:center;gap:6px">
+      <span class="tag" style="background:rgba(58,211,154,.15);color:#3ad39a">BUY</span>
+      <span class="tag" style="background:rgba(255,98,116,.15);color:#ff6274">SELL</span>
+      <span class="tag" style="background:#23252d;color:#b9bcc6">HOLD</span>
+    </div>
+  </div>
+  <div class="grid g4" style="margin-top:16px">
+    <div class="panel"><div class="h-label">Referencias tono</div><p style="margin:0;font-size:13px;color:var(--ink-600)">Bloomberg Terminal, Finviz maps, The Economist en su rigor de datos.</p></div>
+    <div class="panel"><div class="h-label">Referencias UX</div><p style="margin:0;font-size:13px;color:var(--ink-600)">Collectr (limpieza), Linear (densidad elegante), Stripe (claridad).</p></div>
+    <div class="panel"><div class="h-label">Texturas</div><p style="margin:0;font-size:13px;color:var(--ink-600)">Papel plano, bordes hairline, cero degradados, un solo glow cheddar sutil.</p></div>
+    <div class="panel"><div class="h-label">Energía</div><p style="margin:0;font-size:13px;color:var(--ink-600)">Confiada y despierta. Ni fría de banco ni ruidosa de crypto.</p></div>
+  </div>
+</section>
+
+<!-- ============ COMPONENTS ============ -->
+<section id="components" class="wrap reveal">
+  <div class="kicker"><span class="n">11</span> Sistema UI · Componentes</div>
+  <h2 style="font-size:clamp(1.6rem,2.6vw,2.2rem)">Biblioteca de componentes</h2>
+  <p class="lead" style="margin-top:12px">Piezas reales, listas para producción. Radio 8–12px, bordes hairline, foco visible siempre.</p>
+
+  <div class="grid g2" style="margin-top:26px; align-items:start">
+    <div class="panel">
+      <div class="h-label">Botones</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <button style="font-family:var(--sans);font-weight:600;font-size:14px;background:var(--cheddar-500);color:var(--ink-900);border:0;border-radius:9px;padding:10px 18px;cursor:pointer">Haz queso</button>
+        <button style="font-family:var(--sans);font-weight:600;font-size:14px;background:var(--ink-900);color:#fff;border:0;border-radius:9px;padding:10px 18px;cursor:pointer">Ver carta</button>
+        <button style="font-family:var(--sans);font-weight:600;font-size:14px;background:transparent;color:var(--ink-800);border:1px solid var(--border-strong);border-radius:9px;padding:10px 18px;cursor:pointer">Secundario</button>
+        <button style="font-family:var(--sans);font-weight:600;font-size:14px;background:transparent;color:var(--rind);border:0;padding:10px 8px;cursor:pointer">Enlace ›</button>
+      </div>
+      <div class="mono" style="font-size:11px;color:var(--ink-500);margin-top:12px">Primario = cheddar+tinta (1 por vista). Secundario oscuro para acciones neutras.</div>
+    </div>
+    <div class="panel">
+      <div class="h-label">Badges de señal & delta</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <span style="font-family:var(--mono);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;padding:4px 9px;border-radius:6px;background:var(--up-tint);color:var(--up-text);border:1px solid var(--up)">Buy</span>
+        <span style="font-family:var(--mono);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;padding:4px 9px;border-radius:6px;background:var(--down-tint);color:var(--down-text);border:1px solid var(--down)">Sell</span>
+        <span style="font-family:var(--mono);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;padding:4px 9px;border-radius:6px;background:var(--surface-2);color:var(--ink-600);border:1px solid var(--border-strong)">Hold</span>
+        <span class="mono up" style="font-size:13px;background:var(--up-tint);padding:3px 8px;border-radius:6px">▲ 12,4%</span>
+        <span class="mono down" style="font-size:13px;background:var(--down-tint);padding:3px 8px;border-radius:6px">▼ 4,1%</span>
+        <span class="tag" style="background:var(--cheddar-50);color:var(--rind);border:1px solid var(--cheddar-300)">PRO</span>
+      </div>
+      <div class="h-label" style="margin-top:16px">Input & search</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:8px;border:1px solid var(--border-strong);border-radius:9px;padding:8px 12px;flex:1;min-width:180px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink-400)" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+          <span style="color:var(--ink-400);font-size:14px">Busca Luffy, Charizard, OP05…</span>
+        </div>
+        <div style="border:1px solid var(--border-strong);border-radius:9px;padding:8px 12px;font-size:14px;color:var(--ink-700);background:var(--surface)">One Piece ▾</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:20px;padding:0;overflow:hidden">
+    <div class="h-label" style="padding:16px 20px 0">Fila de screener (patrón principal de datos)</div>
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:14px;min-width:640px">
+        <thead><tr style="text-align:left;color:var(--ink-500);font-size:11px;text-transform:uppercase;letter-spacing:.05em">
+          <th style="padding:12px 20px;font-weight:600">Carta</th><th style="padding:12px;font-weight:600">Set</th><th style="padding:12px;font-weight:600;text-align:right">Precio</th><th style="padding:12px;font-weight:600;text-align:right">24h</th><th style="padding:12px;font-weight:600;text-align:right">7d</th><th style="padding:12px;font-weight:600">30d</th><th style="padding:12px;font-weight:600;text-align:right">Señal</th>
+        </tr></thead>
+        <tbody style="color:var(--ink-800)">
+          <tr style="border-top:1px solid var(--border)">
+            <td style="padding:13px 20px"><b>Monkey D. Luffy</b> <span class="mono" style="color:var(--ink-400);font-size:12px">OP05-119</span></td>
+            <td style="padding:13px;color:var(--ink-500)">Awakening</td>
+            <td style="padding:13px;text-align:right" class="mono tnum">$248,30</td>
+            <td style="padding:13px;text-align:right" class="mono up">▲ 3,1%</td>
+            <td style="padding:13px;text-align:right" class="mono up">▲ 12,4%</td>
+            <td style="padding:13px"><svg width="72" height="22" viewBox="0 0 72 22"><polyline points="0,18 14,15 28,16 42,9 56,10 72,3" fill="none" stroke="var(--up)" stroke-width="1.75"/></svg></td>
+            <td style="padding:13px;text-align:right"><span style="font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 8px;border-radius:6px;background:var(--up-tint);color:var(--up-text)">BUY</span></td>
+          </tr>
+          <tr style="border-top:1px solid var(--border)">
+            <td style="padding:13px 20px"><b>Charizard</b> <span class="mono" style="color:var(--ink-400);font-size:12px">BS-004</span></td>
+            <td style="padding:13px;color:var(--ink-500)">Base Set</td>
+            <td style="padding:13px;text-align:right" class="mono tnum">$1.910,00</td>
+            <td style="padding:13px;text-align:right" class="mono down">▼ 0,8%</td>
+            <td style="padding:13px;text-align:right" class="mono down">▼ 4,1%</td>
+            <td style="padding:13px"><svg width="72" height="22" viewBox="0 0 72 22"><polyline points="0,6 14,8 28,5 42,12 56,14 72,18" fill="none" stroke="var(--down)" stroke-width="1.75"/></svg></td>
+            <td style="padding:13px;text-align:right"><span style="font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 8px;border-radius:6px;background:var(--surface-2);color:var(--ink-600)">HOLD</span></td>
+          </tr>
+          <tr style="border-top:1px solid var(--border);background:var(--cheddar-50)">
+            <td style="padding:13px 20px"><b>Zoro</b> <span class="mono" style="color:var(--ink-400);font-size:12px">OP01-025</span></td>
+            <td style="padding:13px;color:var(--ink-500)">Romance Dawn</td>
+            <td style="padding:13px;text-align:right" class="mono tnum">$62,40</td>
+            <td style="padding:13px;text-align:right" class="mono up">▲ 1,4%</td>
+            <td style="padding:13px;text-align:right" class="mono up">▲ 8,9%</td>
+            <td style="padding:13px"><svg width="72" height="22" viewBox="0 0 72 22"><polyline points="0,16 14,14 28,15 42,11 56,8 72,5" fill="none" stroke="var(--up)" stroke-width="1.75"/></svg></td>
+            <td style="padding:13px;text-align:right"><span style="font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 8px;border-radius:6px;background:var(--up-tint);color:var(--up-text)">BUY</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SCREENS ============ -->
+<section id="screens" class="wrap reveal">
+  <div class="kicker"><span class="n">12</span> Sistema UI · Pantallas</div>
+  <h2 style="font-size:clamp(1.6rem,2.6vw,2.2rem)">La marca aplicada</h2>
+  <p class="lead" style="margin-top:12px">El marketing vive en claro editorial; la app respira en el terminal oscuro. Dos mundos, una sola voz.</p>
+
+  <div class="grid g2" style="margin-top:26px; align-items:start">
+    <!-- portfolio (dark app) -->
+    <div class="panel" style="background:var(--ink-950);border-color:var(--ink-950);padding:0;overflow:hidden">
+      <div style="padding:16px 18px;border-bottom:1px solid #23252d;display:flex;justify-content:space-between;align-items:center">
+        <div style="display:flex;align-items:center;gap:8px"><svg width="18" height="18" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#e29a24"/><path d="M7 21.5 L16 8 L25 21.5 Z" fill="#0e0f13"/></svg><b style="color:#fff;font-family:var(--display);font-size:14px">Mi cartera</b></div>
+        <span class="mono" style="color:var(--ink-400);font-size:11px">app · dark</span>
+      </div>
+      <div style="padding:18px">
+        <div class="mono" style="color:var(--ink-400);font-size:11px">VALOR TOTAL</div>
+        <div class="mono" style="color:#fff;font-size:2rem;font-weight:500;letter-spacing:-.01em">$8.412,50</div>
+        <div class="mono" style="color:#3ad39a;font-size:13px;margin-bottom:14px">▲ $340,20 &nbsp;(+4,2%) este mes · <span style="color:var(--cheddar-400)">buen queso</span></div>
+        <svg viewBox="0 0 380 90" width="100%" aria-hidden="true"><polyline points="0,72 40,66 80,70 120,54 160,58 200,44 240,48 280,30 320,34 380,14" fill="none" stroke="#e29a24" stroke-width="2"/><line x1="0" y1="88" x2="380" y2="88" stroke="#23252d"/></svg>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <div style="flex:1;background:#16171d;border-radius:8px;padding:10px"><div class="mono" style="color:var(--ink-400);font-size:10px">CARTAS</div><div class="mono" style="color:#fff;font-size:16px">37</div></div>
+          <div style="flex:1;background:#16171d;border-radius:8px;padding:10px"><div class="mono" style="color:var(--ink-400);font-size:10px">P&amp;L TOTAL</div><div class="mono" style="color:#3ad39a;font-size:16px">+18,7%</div></div>
+          <div style="flex:1;background:#16171d;border-radius:8px;padding:10px"><div class="mono" style="color:var(--ink-400);font-size:10px">MEJOR</div><div class="mono" style="color:#3ad39a;font-size:16px">Zoro</div></div>
+        </div>
+      </div>
+    </div>
+    <!-- marketing (light) -->
+    <div class="panel" style="padding:0;overflow:hidden">
+      <div style="padding:16px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+        <div style="display:flex;align-items:center;gap:8px"><svg width="18" height="18" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#0e0f13"/><path d="M7 21.5 L16 8 L25 21.5 Z" fill="#e29a24"/></svg><b style="font-family:var(--display);font-size:14px">Landing</b></div>
+        <span class="mono" style="color:var(--ink-400);font-size:11px">marketing · light</span>
+      </div>
+      <div style="padding:26px 22px">
+        <div style="font-family:var(--display);font-weight:800;font-size:1.9rem;letter-spacing:-.04em;line-height:1;color:var(--ink-900)">Tu colección ya es<br>una cartera.</div>
+        <p style="margin:12px 0 16px;font-size:14px;color:var(--ink-600)">Léela como una. Precios en tiempo real, señales y portafolio para One Piece y Pokémon.</p>
+        <button style="font-family:var(--sans);font-weight:600;font-size:14px;background:var(--cheddar-500);color:var(--ink-900);border:0;border-radius:9px;padding:11px 20px;cursor:pointer">Empieza gratis</button>
+        <div style="display:flex;gap:8px;margin-top:20px;align-items:flex-end;height:64px">
+          <div style="flex:1;background:var(--surface-2);border-radius:5px;height:40%"></div>
+          <div style="flex:1;background:var(--surface-2);border-radius:5px;height:65%"></div>
+          <div style="flex:1;background:var(--cheddar-300);border-radius:5px;height:52%"></div>
+          <div style="flex:1;background:var(--cheddar-400);border-radius:5px;height:80%"></div>
+          <div style="flex:1;background:var(--cheddar-500);border-radius:5px;height:100%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MOTION ============ -->
+<section id="motion" class="wrap reveal">
+  <div class="kicker"><span class="n">13</span> Sistema UI · Motion</div>
+  <h2 style="font-size:clamp(1.6rem,2.6vw,2.2rem)">Movimiento con criterio</h2>
+  <p class="lead" style="margin-top:12px">La animación confirma acciones y da ritmo, no entretiene. Curvas de salida exponenciales, nada de rebotes. Los datos aparecen, no bailan.</p>
+  <div class="grid g3" style="margin-top:24px">
+    <div class="panel"><div class="h-label">Curva base</div><p class="mono" style="margin:0;font-size:12px;color:var(--ink-700)">cubic-bezier(.22,1,.36,1)</p><p style="margin:8px 0 0;font-size:13px;color:var(--ink-600)">ease-out-quint. Entradas 200 a 320ms, hovers 120 a 150ms.</p></div>
+    <div class="panel"><div class="h-label">Qué animar</div><p style="margin:0;font-size:13px;color:var(--ink-600)">opacity y transform. Stagger sutil en listas. Números que suben cuentan (count-up) al cargar.</p></div>
+    <div class="panel"><div class="h-label">Innegociable</div><p style="margin:0;font-size:13px;color:var(--ink-600)"><span class="mono">prefers-reduced-motion</span> siempre con alternativa: fundido o instantáneo. Contenido visible por defecto.</p></div>
+  </div>
+</section>
+
+<!-- ============ A11Y ============ -->
+<section id="a11y" class="wrap reveal">
+  <div class="kicker"><span class="n">14</span> Sistema UI · Accesibilidad</div>
+  <h2 style="font-size:clamp(1.6rem,2.6vw,2.2rem)">Legible para todos</h2>
+  <div class="grid g2" style="margin-top:22px">
+    <div class="panel"><div class="h-label">Contraste (WCAG AA)</div>
+      <ul class="clean" style="font-size:13.5px;color:var(--ink-600)">
+        <li><div>Cuerpo ≥ 4.5:1. Tinta-700 sobre papel supera 12:1.</div></li>
+        <li><div>Texto sobre cheddar-500 siempre en tinta-900.</div></li>
+        <li><div>Cheddar como texto solo desde el 700 y en grande.</div></li>
+      </ul>
+    </div>
+    <div class="panel"><div class="h-label">Color no es el único canal</div>
+      <ul class="clean" style="font-size:13.5px;color:var(--ink-600)">
+        <li><div>Sube/baja siempre con ▲▼, no solo verde/rojo.</div></li>
+        <li><div>Señales con texto (BUY/SELL/HOLD), no solo color.</div></li>
+        <li><div>Foco visible en todo control. Objetivos táctiles ≥ 44px.</div></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TOKENS ============ -->
+<section id="tokens" class="wrap reveal" style="border-bottom:none">
+  <div class="kicker"><span class="n">15</span> Handoff · Design tokens</div>
+  <h2 style="font-size:clamp(1.6rem,2.6vw,2.2rem)">Listos para el código</h2>
+  <p class="lead" style="margin-top:12px">Estos tokens mapean 1:1 con el <span class="mono">tailwind.config.js</span> actual del repo. El siguiente paso natural es conectarlos a la app.</p>
+  <div class="panel" style="margin-top:22px;background:var(--ink-950);border-color:var(--ink-950);overflow-x:auto">
+<pre class="mono" style="margin:0;color:#c9cbd2;font-size:12.5px;line-height:1.7"><span style="color:#8b8e99">/* tokens.css — CSS custom properties */</span>
+:root {
+  --cheddar-500: <span style="color:#e29a24">#E29A24</span>;  <span style="color:#8b8e99">/* primario */</span>
+  --cheddar-600: <span style="color:#e29a24">#C9820F</span>;  --rind: <span style="color:#e29a24">#7A4D08</span>;
+  --ink-950: <span style="color:#8b9cff">#0E0F13</span>;  --ink-700: <span style="color:#8b9cff">#2F313B</span>;  --ink-500: <span style="color:#8b9cff">#6A6D7A</span>;
+  --paper: <span style="color:#8b9cff">#FFFFFF</span>;  --surface: <span style="color:#8b9cff">#F6F6F7</span>;  --border: <span style="color:#8b9cff">#E5E5E9</span>;
+  --up: <span style="color:#3ad39a">#0FA66E</span>;  --down: <span style="color:#ff6274">#DC3A4E</span>;  --info: <span style="color:#8b9cff">#2F6BFF</span>;
+  --font-display: <span style="color:#3ad39a">"Bricolage Grotesque"</span>;
+  --font-sans: <span style="color:#3ad39a">"Hanken Grotesk"</span>;
+  --font-mono: <span style="color:#3ad39a">"Spline Sans Mono"</span>;
+  --radius: <span style="color:#e29a24">12px</span>;  --ease: <span style="color:#3ad39a">cubic-bezier(.22,1,.36,1)</span>;
+}</pre>
+  </div>
+  <div class="panel soft" style="margin-top:14px">
+    <div class="h-label">Nota de migración</div>
+    <p style="margin:0;font-size:13.5px;color:var(--ink-600)">El repo ya usa <span class="mono">ink / panel / edge / up / down / accent</span>. Propuesta: renombrar <span class="mono">accent → cheddar</span>, afinar <span class="mono">up/down</span> a los valores AA de arriba y sumar la escala display/sans/mono. Puedo dejarlo aplicado en <span class="mono">tailwind.config.js</span> cuando quieras.</p>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer style="background:var(--ink-950);color:#b9bcc6;padding:48px 0">
+  <div class="wrap" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px">
+    <div style="display:flex;align-items:center;gap:12px">
+      <svg width="34" height="34" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#e29a24"/><path d="M7 21.5 L16 8 L25 21.5 Z" fill="#0e0f13"/><circle cx="14.2" cy="17.6" r="1.5" fill="#e29a24"/></svg>
+      <div><div style="font-family:var(--display);font-weight:800;color:#fff;font-size:18px;letter-spacing:-.03em">TCCheese</div><div class="mono" style="font-size:11px;color:#8b8e99">Brandbook v1.0 · Haz queso.</div></div>
+    </div>
+    <div class="mono" style="font-size:11px;color:#8b8e99;text-align:right">Documento vivo · sistema de diseño<br>One Piece · Pokémon TCG · Julio 2026</div>
+  </div>
+</footer>
+
+</main>
+</div>
+
+<script>
+(function(){
+  var els=document.querySelectorAll('.reveal');
+  if(!('IntersectionObserver' in window)){els.forEach(function(el){el.classList.add('in');});return;}
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}})},{threshold:.12});
+  els.forEach(function(el){io.observe(el);});
+  var links=[].slice.call(document.querySelectorAll('.side a.nav'));
+  var secs=links.map(function(l){return document.getElementById(l.getAttribute('href').slice(1));}).filter(Boolean);
+  var spy=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){links.forEach(function(l){l.classList.toggle('active',l.getAttribute('href')==='#'+e.target.id);});}})},{rootMargin:'-45% 0px -50% 0px'});
+  secs.forEach(function(s){spy.observe(s);});
+})();
+</script>
+</body>
+</html>

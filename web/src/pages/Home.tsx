@@ -1,110 +1,140 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { MOCK_CARDS } from "../mock";
-import { Change, compact, money, Sparkline, SignalBadge } from "../ui";
+import { Change, compact, CountUp, money, Sparkline } from "../ui";
 
 const mean = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0);
+
+const FEATURES = [
+  { t: "Screener financiero", d: "Filtra por RSI, volatilidad, %52w, premium de graded y más — como un screener de acciones, no un catálogo." },
+  { t: "Multi-mercado + graded", d: "Precios de TCGplayer, eBay y Cardmarket, con ladder PSA / BGS / CGC y población. Mostramos de dónde sale cada número." },
+  { t: "Análisis relativo", d: "Cada carta leída contra las de su misma rareza: rank, percentil y momentum. Contexto, no ruido." },
+  { t: "Grading ROI", d: "Cuánto ganarías graduando a PSA 10, BGS 9.5 o CGC 10 — con la población de cada grado. Tú decides." },
+];
 
 export default function Home() {
   const cap = MOCK_CARDS.reduce((a, c) => a + c.market_cap, 0);
   const avg24 = mean(MOCK_CARDS.map((c) => c.change_24h));
   const avg7 = mean(MOCK_CARDS.map((c) => c.change_7d));
   const vol = MOCK_CARDS.reduce((a, c) => a + c.sales_volume_30d, 0);
-
-  const byChange = [...MOCK_CARDS].sort((a, b) => b.change_7d - a.change_7d);
-  const gainers = byChange.slice(0, 5);
-  const losers = byChange.slice(-5).reverse();
-  const valuable = [...MOCK_CARDS].sort((a, b) => b.price_current - a.price_current).slice(0, 5);
-
-  const records = MOCK_CARDS.flatMap((c) =>
-    c.recent_sales.map((s) => ({ card: c, sale: s })),
-  )
-    .sort((a, b) => b.sale.price - a.sale.price)
-    .slice(0, 5);
-
-  // "Índice" One Piece: serie agregada (suma de precios) normalizada.
-  const idx = MOCK_CARDS[0].series.map((_, i) => ({
-    v: MOCK_CARDS.reduce((a, c) => a + c.series[i].price, 0),
-  }));
+  const movers = [...MOCK_CARDS].sort((a, b) => b.change_7d - a.change_7d);
+  const hero = [...MOCK_CARDS].sort((a, b) => b.price_current - a.price_current).slice(0, 4);
+  const idx = MOCK_CARDS[0].series.map((_, i) => MOCK_CARDS.reduce((a, c) => a + c.series[i].price, 0));
 
   return (
-    <div className="space-y-6">
-      {/* Stats de mercado */}
-      <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <KPI label="Market cap total" value={`$${compact(cap)}`} />
-        <KPI label="Cambio medio 24h" value={<Change v={avg24} />} />
-        <KPI label="Cambio medio 7d" value={<Change v={avg7} />} />
-        <KPI label="Volumen 30d" value={compact(vol)} />
-      </section>
-
-      {/* Índices por juego */}
-      <section className="grid gap-3 md:grid-cols-2">
-        <div className="rounded-xl border border-edge bg-panel p-4">
-          <div className="mb-1 flex items-center justify-between">
-            <span className="font-semibold">Índice One Piece</span>
-            <Change v={avg7} />
-          </div>
-          <div className="text-xs text-slate-500">
-            {MOCK_CARDS.length} cartas · cap ${compact(cap)}
-          </div>
-          <div className="mt-3">
-            <Sparkline data={idx.map((p) => p.v).slice(-90)} w={520} h={64} />
-          </div>
-        </div>
-        <div className="flex items-center justify-center rounded-xl border border-dashed border-edge bg-panel/50 p-4 text-sm text-slate-500">
-          Índice Pokémon — próximamente
-        </div>
-      </section>
-
-      {/* Movers */}
-      <section className="grid gap-4 md:grid-cols-2">
-        <MoverList title="Top subidas · 7d" cards={gainers} />
-        <MoverList title="Top bajadas · 7d" cards={losers} />
-      </section>
-
-      {/* Ventas récord + más valiosas */}
-      <section className="grid gap-4 md:grid-cols-2">
-        <div className="rounded-xl border border-edge bg-panel p-4">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-400">
-            Ventas récord
-          </h2>
-          <div className="space-y-2">
-            {records.map((r, i) => (
-              <Link key={i} to={`/cards/${r.card.id}`} className="flex items-center justify-between text-sm hover:text-white">
-                <span className="truncate">
-                  <span className="text-slate-500">{r.sale.grade ?? "Raw"}</span> {r.card.name}
-                </span>
-                <span className="font-mono font-semibold">{money(r.sale.price)}</span>
+    <div className="space-y-12">
+      {/* HERO — banda terminal, oscura en ambos temas (brandbook: editorial claro + terminal oscuro) */}
+      <section className="hero-dark fade-up relative overflow-hidden rounded-2xl border border-edge bg-ink p-8 sm:p-12">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -right-24 -top-32 h-[26rem] w-[26rem] rounded-full opacity-70"
+          style={{ background: "radial-gradient(closest-side, rgba(226,154,36,0.16), transparent 70%)" }}
+        />
+        <div className="relative grid items-center gap-10 lg:grid-cols-[1.15fr_1fr]">
+          <div>
+            <p className="mb-5 flex flex-wrap items-center gap-x-2.5 gap-y-1 font-mono text-[11px] tracking-wide text-cheddar-300">
+              Terminal <span className="text-slate-600">·</span> One Piece + Pokémon{" "}
+              <span className="text-slate-600">·</span>{" "}
+              <span className="text-muted">datos de muestra</span>
+            </p>
+            <h1 className="text-[clamp(2.1rem,5vw,3.4rem)] font-extrabold leading-[0.98] text-balance">
+              Tu colección ya es una <span className="text-brand">cartera</span>.
+            </h1>
+            <p className="mt-4 max-w-xl text-lg text-secondary">
+              Léela como una. Precios multi-mercado, histórico, graded y un screener financiero para
+              leer el mercado antes de abrir el sobre.
+            </p>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Link to="/screener" className="rounded-lg bg-accent px-5 py-2.5 font-semibold text-tinta-950 transition-[filter] duration-150 ease-brand hover:brightness-110">
+                Haz queso →
               </Link>
+              <Link to="/explore" className="rounded-lg border border-edge bg-panel px-5 py-2.5 font-semibold text-strong transition-colors duration-150 ease-brand hover:border-cheddar-500/50">
+                Explorar el mercado
+              </Link>
+            </div>
+
+            {/* Meta en mono, cifras con count-up al cargar */}
+            <dl className="mt-9 flex flex-wrap gap-x-9 gap-y-4 border-t border-edge pt-6">
+              <Meta label="Market cap">
+                <CountUp value={cap} format={(n) => `$${compact(n)}`} />
+              </Meta>
+              <Meta label="Media 7d">
+                <Change v={avg7} />
+              </Meta>
+              <Meta label="Volumen 30d">
+                <CountUp value={vol} format={(n) => compact(n)} />
+              </Meta>
+              <Meta label="Cartas">
+                <CountUp value={MOCK_CARDS.length} format={(n) => String(Math.round(n))} />
+              </Meta>
+            </dl>
+          </div>
+          <div className="hidden justify-center gap-3 lg:flex">
+            {hero.map((c, i) => (
+              <img
+                key={c.id}
+                src={c.image_url}
+                alt={c.name}
+                className="w-28 rounded-lg border border-edge shadow-2xl transition-transform duration-200 ease-brand hover:-translate-y-1"
+                style={{ transform: `rotate(${(i - 1.5) * 5}deg)`, marginTop: `${Math.abs(i - 1.5) * 12}px` }}
+              />
             ))}
           </div>
         </div>
-        <div className="rounded-xl border border-edge bg-panel p-4">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-400">
-            Más valiosas
-          </h2>
-          <div className="space-y-2">
-            {valuable.map((c) => (
-              <Link key={c.id} to={`/cards/${c.id}`} className="flex items-center justify-between text-sm hover:text-white">
-                <span className="truncate">{c.name}</span>
-                <span className="flex items-center gap-2">
-                  <SignalBadge signal={c.signal} />
-                  <span className="font-mono font-semibold">{money(c.price_current)}</span>
-                </span>
-              </Link>
-            ))}
+      </section>
+
+      {/* FEATURES — lista diferenciada, no grid de tarjetas idénticas */}
+      <section className="grid gap-x-10 gap-y-6 md:grid-cols-2">
+        {FEATURES.map((f, i) => (
+          <div key={f.t} className="fade-up flex gap-3" style={{ animationDelay: `${i * 60}ms` }}>
+            <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-accent" />
+            <div>
+              <h3 className="font-semibold">{f.t}</h3>
+              <p className="mt-1 text-sm text-muted">{f.d}</p>
+            </div>
           </div>
+        ))}
+      </section>
+
+      {/* MERCADO — pulso del día + movers (no hero-metric duplicado) */}
+      <section>
+        <div className="mb-3 flex items-baseline justify-between">
+          <h2 className="text-lg font-semibold">El mercado ahora</h2>
+          <Link to="/explore" className="text-sm font-medium text-brand hover:underline">Ver todo →</Link>
+        </div>
+
+        <div className="mb-5 flex flex-wrap items-center gap-x-8 gap-y-3 rounded-xl border border-edge bg-panel px-5 py-3.5">
+          <Tick label="24h" value={<Change v={avg24} />} />
+          <Tick label="7d" value={<Change v={avg7} />} />
+          <span className="font-mono text-xs text-muted">
+            {avg7 >= 0 ? "El índice sube. Buen queso." : "El índice se enfría."}
+          </span>
+          <span className="ml-auto"><Sparkline data={idx.slice(-90)} w={168} h={32} /></span>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <MoverList title="Top subidas · 7d" cards={movers.slice(0, 5)} />
+          <MoverList title="Top bajadas · 7d" cards={movers.slice(-5).reverse()} />
         </div>
       </section>
     </div>
   );
 }
 
-function KPI({ label, value }: { label: string; value: ReactNode }) {
+function Meta({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="rounded-xl border border-edge bg-panel px-4 py-3">
-      <div className="text-[10px] uppercase tracking-wider text-slate-500">{label}</div>
-      <div className="mt-1 font-mono text-xl font-semibold">{value}</div>
+    <div>
+      <dt className="font-mono text-[11px] uppercase tracking-wider text-muted">{label}</dt>
+      <dd className="mt-1 font-mono text-xl font-semibold text-strong">{children}</dd>
+    </div>
+  );
+}
+
+function Tick({ label, value }: { label: string; value: ReactNode }) {
+  return (
+    <div className="flex items-baseline gap-2">
+      <span className="text-xs text-muted">{label}</span>
+      <span className="font-mono text-base font-semibold">{value}</span>
     </div>
   );
 }
@@ -112,10 +142,10 @@ function KPI({ label, value }: { label: string; value: ReactNode }) {
 function MoverList({ title, cards }: { title: string; cards: typeof MOCK_CARDS }) {
   return (
     <div className="rounded-xl border border-edge bg-panel p-4">
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-400">{title}</h2>
-      <div className="space-y-2">
+      <h3 className="mb-3 text-sm font-semibold text-secondary">{title}</h3>
+      <div className="space-y-1">
         {cards.map((c) => (
-          <Link key={c.id} to={`/cards/${c.id}`} className="flex items-center gap-3 hover:text-white">
+          <Link key={c.id} to={`/cards/${c.id}`} className="flex items-center gap-3 rounded-lg px-1.5 py-1 hover:bg-ink/50">
             <img src={c.image_url} alt="" className="h-10 w-8 rounded object-cover" />
             <span className="truncate text-sm">{c.name}</span>
             <span className="ml-auto"><Sparkline data={c.series.slice(-14).map((p) => p.price)} w={60} h={22} /></span>

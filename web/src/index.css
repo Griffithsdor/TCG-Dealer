@@ -2,12 +2,85 @@
 @tailwind components;
 @tailwind utilities;
 
-html {
+/* ---- Tokens de tema (canales RGB para soportar /opacidad en Tailwind) ----
+   Oscuro = terminal (default). `.light` = editorial claro del brandbook. */
+:root {
+  --c-bg: 14 15 19; /* #0e0f13 ink-950 */
+  --c-surface: 22 23 29; /* #16171d ink-900 */
+  --c-surface-2: 28 30 38; /* #1c1e26 */
+  --c-border: 35 37 45; /* #23252d ink-800 */
+  --c-body: 229 231 235; /* cuerpo claro */
+  --c-strong: 243 244 246; /* títulos */
+  --c-secondary: 203 213 225;
+  --c-muted: 154 157 170; /* tinta-400 */
+  --c-up: 15 166 110; /* #0fa66e */
+  --c-down: 240 87 107; /* #f0576b */
+  --c-brand-text: 226 154 36; /* cheddar-500 */
   color-scheme: dark;
 }
+html.light {
+  --c-bg: 255 255 255; /* paper */
+  --c-surface: 246 246 247; /* #f6f6f7 */
+  --c-surface-2: 237 237 240; /* #ededf0 */
+  --c-border: 229 229 233; /* #e5e5e9 */
+  --c-body: 47 49 59; /* tinta-700 */
+  --c-strong: 22 23 29; /* tinta-900 */
+  --c-secondary: 73 76 88; /* tinta-600 */
+  --c-muted: 106 109 122; /* tinta-500 */
+  --c-up: 9 122 81; /* #097a51 up-text AA */
+  --c-down: 193 38 58; /* #c1263a down-text AA */
+  --c-brand-text: 162 102 10; /* cheddar-700, AA sobre claro */
+  color-scheme: light;
+}
+/* La banda hero es terminal SIEMPRE (editorial claro + terminal oscuro, brandbook),
+   así que fija sus tokens en oscuro sin importar el tema de la página. */
+.hero-dark {
+  --c-bg: 14 15 19;
+  --c-surface: 22 23 29;
+  --c-surface-2: 28 30 38;
+  --c-border: 35 37 45;
+  --c-body: 203 213 225;
+  --c-strong: 243 244 246;
+  --c-secondary: 203 213 225;
+  --c-muted: 154 157 170;
+  --c-up: 15 166 110;
+  --c-down: 240 87 107;
+  --c-brand-text: 226 154 36;
+  color-scheme: dark;
+}
+
 body {
-  @apply bg-ink text-slate-200 font-sans antialiased;
+  @apply bg-ink text-body font-sans antialiased;
   margin: 0;
+  transition: background-color 0.2s var(--ease, ease), color 0.2s var(--ease, ease);
+}
+/* Titulares en Bricolage (display), tracking del brandbook (-0.03em); el cuerpo queda en Hanken. */
+@layer base {
+  h1, h2, h3, h4 {
+    @apply font-display text-strong;
+    text-wrap: balance;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  /* Foco visible en todo control (brandbook · accesibilidad). */
+  :focus-visible {
+    outline: 2px solid theme("colors.cheddar.400");
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+.font-tnum {
+  font-variant-numeric: tabular-nums;
+}
+/* Kicker de marca: mono, cheddar, con numeral tenue. Uso deliberado, no en cada sección. */
+.kicker {
+  @apply inline-flex items-center gap-2 font-mono text-xs font-medium text-cheddar-300;
+}
+.kicker .n {
+  @apply text-muted;
 }
 ::-webkit-scrollbar {
   width: 10px;
@@ -15,4 +88,21 @@ body {
 }
 ::-webkit-scrollbar-thumb {
   @apply bg-edge rounded;
+}
+
+/* Motion: revelado sutil, solo si el usuario no pidió reducir movimiento. */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes fadeUp {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .fade-up {
+    animation: fadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
 }

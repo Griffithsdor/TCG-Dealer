@@ -1,9 +1,31 @@
 <!doctype html>
-<html lang="es" class="dark">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TCG Intelligence</title>
+    <meta name="theme-color" content="#0e0f13" />
+    <link rel="icon" type="image/png" href="/tccheese-logo.png" />
+    <title>TCCheese — El terminal financiero de las cartas</title>
+    <!-- Fija el tema antes de pintar (sin parpadeo). Default: oscuro; respeta la elección o el sistema. -->
+    <script>
+      (function () {
+        try {
+          var s = localStorage.getItem("theme");
+          var light = s ? s === "light" : window.matchMedia("(prefers-color-scheme: light)").matches;
+          if (light) {
+            document.documentElement.classList.add("light");
+            var m = document.querySelector('meta[name="theme-color"]');
+            if (m) m.setAttribute("content", "#ffffff");
+          }
+        } catch (e) {}
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&family=Spline+Sans+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <div id="root"></div>
