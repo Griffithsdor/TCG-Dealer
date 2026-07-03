@@ -1,7 +1,8 @@
 """API pública (Fase 1).
 
-Sirve el catálogo y las series de precios desde Postgres. Read-only por ahora;
-el motor de análisis (Fase 2) añadirá las señales sobre estos mismos datos.
+Sirve el catálogo y las series de precios desde Postgres. Reads abiertos (datos
+públicos de precios) con CORS, para que consuma la web. Cognito/JWT se añade
+cuando se quiera cerrar el acceso.
 
 Arranque local: `make api-dev`  (requiere DATABASE_URL)
 """
@@ -11,19 +12,19 @@ from __future__ import annotations
 import os
 
 import psycopg
-from fastapi import Depends, FastAPI, Header, HTTPException
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from psycopg.rows import dict_row
 
 app = FastAPI(title="TCG Price Intelligence API", version="0.1.0")
 
-_API_KEY = os.getenv("API_KEY")
-
-
-def require_api_key(x_api_key: str | None = Header(default=None)) -> None:
-    """Auth interina por header X-API-Key. Si API_KEY no está definida (dev local),
-    no bloquea. En AWS se inyecta desde SSM."""
-    if _API_KEY and x_api_key != _API_KEY:
-        raise HTTPException(status_code=401, detail="API key inválida o ausente")
+# ponytail: reads públicos → CORS abierto. Restringir origins al cerrar con Cognito.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["GET"],
+    allow_headers=["*"],
+)
 
 
 def _conn() -> psycopg.Connection:
@@ -38,21 +39,22 @@ def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
-@app.get("/v1/games", dependencies=[Depends(require_api_key)])
+@app.get("/v1/games")
 def list_games() -> list[dict]:
     with _conn() as conn, conn.cursor() as cur:
         cur.execute("SELECT code, name FROM games ORDER BY name")
         return cur.fetchall()
 
 
-@app.get("/v1/cards", dependencies=[Depends(require_api_key)])
+@app.get("/v1/cards")
 def list_cards(game: str | None = None, limit: int = 50, offset: int = 0) -> dict:
-    """Lista cartas (con su último precio/señal), ordenadas por valor."""
+    """Lista cartas (con imagen + último precio/señal), ordenadas por valor."""
     limit = min(limit, 200)
     with _conn() as conn, conn.cursor() as cur:
         cur.execute(
             """
-            SELECT c.id::text, c.name, c.rarity, s.code AS set_code, g.code AS game,
+            SELECT c.id::text, c.name, c.rarity, c.image_url,
+                   s.code AS set_code, g.code AS game,
                    snap.price_current, snap.currency, snap.change_7d, snap.signal
             FROM cards c
             JOIN sets s ON s.id = c.set_id
@@ -68,7 +70,7 @@ def list_cards(game: str | None = None, limit: int = 50, offset: int = 0) -> dic
         return {"cards": cur.fetchall()}
 
 
-@app.get("/v1/cards/{card_id}", dependencies=[Depends(require_api_key)])
+@app.get("/v1/cards/{card_id}")
 def get_card(card_id: str) -> dict:
     """Ficha de carta: metadatos + variantes con su último precio."""
     with _conn() as conn, conn.cursor() as cur:
@@ -88,11 +90,12 @@ def get_card(card_id: str) -> dict:
         if card is None:
             raise HTTPException(status_code=404, detail="Carta no encontrada")
 
-        # Variantes + último precio de mercado consolidado.
         cur.execute(
             """
             SELECT cv.id::text AS variant_id, cv.variant, cv.finish,
-                   snap.price_current, snap.currency, snap.change_7d, snap.signal
+                   snap.price_current, snap.currency, snap.change_7d, snap.signal,
+                   snap.change_30d, snap.sma_30, snap.rsi_14,
+                   snap.volatility_30d, snap.ath, snap.atl
             FROM card_variants cv
             LEFT JOIN analytics_snapshots snap ON snap.variant_id = cv.id
             WHERE cv.card_id = %s
@@ -104,7 +107,7 @@ def get_card(card_id: str) -> dict:
         return card
 
 
-@app.get("/v1/variants/{variant_id}/history", dependencies=[Depends(require_api_key)])
+@app.get("/v1/variants/{variant_id}/history")
 def get_variant_history(variant_id: str, days: int = 90) -> dict:
     """Serie temporal de precio de mercado de una variante."""
     with _conn() as conn, conn.cursor() as cur:
@@ -118,5 +121,4 @@ def get_variant_history(variant_id: str, days: int = 90) -> dict:
             """,
             (variant_id, days),
         )
-        points = cur.fetchall()
-        return {"variant_id": variant_id, "days": days, "points": points}
+        return {"variant_id": variant_id, "days": days, "points": cur.fetchall()}
