@@ -45,6 +45,29 @@ def list_games() -> list[dict]:
         return cur.fetchall()
 
 
+@app.get("/v1/cards", dependencies=[Depends(require_api_key)])
+def list_cards(game: str | None = None, limit: int = 50, offset: int = 0) -> dict:
+    """Lista cartas (con su último precio/señal), ordenadas por valor."""
+    limit = min(limit, 200)
+    with _conn() as conn, conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT c.id::text, c.name, c.rarity, s.code AS set_code, g.code AS game,
+                   snap.price_current, snap.currency, snap.change_7d, snap.signal
+            FROM cards c
+            JOIN sets s ON s.id = c.set_id
+            JOIN games g ON g.id = c.game_id
+            LEFT JOIN card_variants cv ON cv.card_id = c.id
+            LEFT JOIN analytics_snapshots snap ON snap.variant_id = cv.id
+            WHERE (%s IS NULL OR g.code = %s)
+            ORDER BY snap.price_current DESC NULLS LAST
+            LIMIT %s OFFSET %s
+            """,
+            (game, game, limit, offset),
+        )
+        return {"cards": cur.fetchall()}
+
+
 @app.get("/v1/cards/{card_id}", dependencies=[Depends(require_api_key)])
 def get_card(card_id: str) -> dict:
     """Ficha de carta: metadatos + variantes con su último precio."""
