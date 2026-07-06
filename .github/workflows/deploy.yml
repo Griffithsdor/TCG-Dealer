@@ -51,9 +51,8 @@ jobs:
       - name: Terraform init
         run: terraform init -backend-config=backend.hcl
 
-      - name: Crear ECR (si no existe)
-        run: terraform apply -target=aws_ecr_repository.app -auto-approve -input=false
-
+      # ECR ya existe en el state; sacamos su URL sin apply targeteado
+      # (el -target chocaba con los bloques `moved`).
       - name: Capturar URL de ECR
         id: ecr
         run: echo "url=$(terraform output -raw ecr_repository_url)" >> "$GITHUB_OUTPUT"
