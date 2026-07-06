@@ -1,5 +1,28 @@
 # ECS Fargate (Spot) + ALB + CloudFront. La API no se expone directa: CloudFront
 # (HTTPS) → ALB (solo con header secreto) → tarea Fargate (SG solo desde ALB).
+# El ALB/servicio/etc. se gatean con var.enabled (encendido/apagado del entorno).
+
+# Transición sin churn: al añadir count, estos recursos pasan a índice [0].
+moved {
+  from = aws_lb.api
+  to   = aws_lb.api[0]
+}
+moved {
+  from = aws_lb_target_group.api
+  to   = aws_lb_target_group.api[0]
+}
+moved {
+  from = aws_lb_listener.http
+  to   = aws_lb_listener.http[0]
+}
+moved {
+  from = aws_lb_listener_rule.from_cloudfront
+  to   = aws_lb_listener_rule.from_cloudfront[0]
+}
+moved {
+  from = aws_ecs_service.api
+  to   = aws_ecs_service.api[0]
+}
 
 locals {
   image_uri = "${aws_ecr_repository.app.repository_url}:${var.image_tag}"
@@ -64,6 +87,7 @@ resource "aws_ecs_task_definition" "api" {
 }
 
 resource "aws_ecs_service" "api" {
+  count           = var.enabled ? 1 : 0
   name            = "${local.name}-api"
   cluster         = aws_ecs_cluster.this.id
   task_definition = aws_ecs_task_definition.api.arn
@@ -81,21 +105,17 @@ resource "aws_ecs_service" "api" {
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.api.arn
+    target_group_arn = aws_lb_target_group.api[0].arn
     container_name   = "api"
     container_port   = 8000
-  }
-
-  # desired_count lo mueve el cron env-up/env-down; no lo pisemos en cada apply.
-  lifecycle {
-    ignore_changes = [desired_count]
   }
 
   depends_on = [aws_lb_listener.http, aws_ecs_cluster_capacity_providers.this]
 }
 
-# ---- ALB ----
+# ---- ALB (gateado por var.enabled) ----
 resource "aws_lb" "api" {
+  count              = var.enabled ? 1 : 0
   name               = "${local.name}-alb"
   internal           = false
   load_balancer_type = "application"
@@ -104,6 +124,7 @@ resource "aws_lb" "api" {
 }
 
 resource "aws_lb_target_group" "api" {
+  count       = var.enabled ? 1 : 0
   name        = "${local.name}-tg"
   port        = 8000
   protocol    = "HTTP"
@@ -122,7 +143,8 @@ resource "aws_lb_target_group" "api" {
 
 # Por defecto 403; solo pasa si trae el header secreto de CloudFront.
 resource "aws_lb_listener" "http" {
-  load_balancer_arn = aws_lb.api.arn
+  count             = var.enabled ? 1 : 0
+  load_balancer_arn = aws_lb.api[0].arn
   port              = 80
   protocol          = "HTTP"
 
@@ -137,11 +159,12 @@ resource "aws_lb_listener" "http" {
 }
 
 resource "aws_lb_listener_rule" "from_cloudfront" {
-  listener_arn = aws_lb_listener.http.arn
+  count        = var.enabled ? 1 : 0
+  listener_arn = aws_lb_listener.http[0].arn
   priority     = 100
   action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.api.arn
+    target_group_arn = aws_lb_target_group.api[0].arn
   }
   condition {
     http_header {
@@ -163,8 +186,10 @@ resource "aws_cloudfront_distribution" "api" {
   price_class     = "PriceClass_100"
   is_ipv6_enabled = true
 
+  # Cuando el entorno está apagado (sin ALB), origen provisional válido. Al
+  # encender, CloudFront repunta al ALB nuevo (propaga ~10-15 min).
   origin {
-    domain_name = aws_lb.api.dns_name
+    domain_name = try(aws_lb.api[0].dns_name, "disabled.example.com")
     origin_id   = "alb"
     custom_origin_config {
       http_port              = 80

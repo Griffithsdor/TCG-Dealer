@@ -1,12 +1,12 @@
 name: env-up
 
-# Enciende el entorno: terraform apply recrea el ALB + listener y repunta
-# CloudFront (que nunca se destruye, dominio estable), y escala la API a 1.
-# Usa la imagen que ya está en ECR (no reconstruye).
+# Enciende el entorno: terraform apply -var enabled=true recrea ALB + target
+# group + listener + servicio ECS, y repunta CloudFront al ALB nuevo. La API
+# queda arriba (CloudFront propaga ~10-15 min tras recrear el ALB).
 
 on:
   schedule:
-    - cron: "0 13 * * *" # 13:00 UTC diario (quítalo si prefieres encender a mano)
+    - cron: "0 12 * * *" # 12:00 UTC ≈ 07:00 GMT-5 (ajústalo)
   workflow_dispatch: {}
 
 permissions:
@@ -29,12 +29,10 @@ jobs:
         working-directory: terraform
     steps:
       - uses: actions/checkout@v4
-
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
-
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: "1.7.5"
@@ -47,18 +45,12 @@ jobs:
             -backend-config="region=${{ env.AWS_REGION }}" \
             -backend-config="dynamodb_table=${{ vars.TF_LOCK_TABLE }}"
 
-      - name: Terraform apply (recrea ALB, repunta CloudFront)
+      - name: Encender (enabled=true)
         run: |
           set -euo pipefail
           export AWS_PAGER=""
-          IMAGE_TAG=$(aws ecr describe-images --repository-name "${NAME}-app" \
+          IMG=$(aws ecr describe-images --repository-name "${NAME}-app" \
             --query 'sort_by(imageDetails,&imagePushedAt)[-1].imageTags[0]' --output text)
-          echo "image_tag=$IMAGE_TAG"
-          terraform apply -input=false -auto-approve -var="image_tag=$IMAGE_TAG"
-
-      - name: Escalar API a 1
-        run: |
-          export AWS_PAGER=""
-          aws ecs update-service --cluster "${NAME}-cluster" --service "${NAME}-api" \
-            --desired-count 1 >/dev/null
-          echo "entorno encendido."
+          terraform apply -input=false -auto-approve -var="enabled=true" -var="image_tag=$IMG"
+          echo "Entorno encendido."
+          terraform output -raw api_url || true

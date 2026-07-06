@@ -58,6 +58,18 @@ variable "image_tag" {
   default     = "latest"
 }
 
+variable "enabled" {
+  description = <<-EOT
+    Interruptor de encendido/apagado del entorno "caro". true = API arriba
+    (ALB + tarea Fargate + IPs públicas). false = destruye ALB, target group,
+    listener y el servicio ECS → sin ALB, sin IPv4, sin cómputo Fargate.
+    Aurora (BD), S3, SSM, ECR y CloudFront NO se tocan (datos y dominio estables).
+    Lo mueven los workflows env-up (true) / env-down (false).
+  EOT
+  type        = bool
+  default     = true
+}
+
 variable "github_org" {
   description = "Organización/usuario de GitHub dueño del repo"
   type        = string

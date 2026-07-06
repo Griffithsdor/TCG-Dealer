@@ -38,9 +38,14 @@ output "ecs_cluster" {
   value       = aws_ecs_cluster.this.name
 }
 
+output "enabled" {
+  description = "Estado del entorno caro (ALB + Fargate)"
+  value       = var.enabled
+}
+
 output "alb_name" {
-  description = "Nombre del ALB (lo borra env-down y lo recrea env-up)"
-  value       = aws_lb.api.name
+  description = "Nombre del ALB (null si el entorno está apagado)"
+  value       = try(aws_lb.api[0].name, null)
 }
 
 output "cognito_user_pool_id" {

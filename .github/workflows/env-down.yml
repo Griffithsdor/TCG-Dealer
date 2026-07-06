@@ -1,13 +1,14 @@
 name: env-down
 
-# Apaga el entorno para no pagar de más: escala la API a 0 y BORRA el ALB
-# (mata su ~$16/mes). Solo CLI (sin Terraform), así no puede romper la config;
-# env-up reconcilia por la mañana. Aurora se auto-pausa sola (scale-to-zero), no
-# hay que pararla. Los jobs siguen corriendo (tareas puntuales que se auto-crean).
+# Apaga el entorno caro: terraform apply -var enabled=false DESTRUYE el ALB,
+# target group, listener y el servicio ECS → sin ALB, sin IPv4 público, sin
+# cómputo Fargate. Aurora se auto-pausa (solo storage). BD, S3, SSM, ECR y
+# CloudFront NO se tocan. Declarativo e idempotente: si un cron se salta, el
+# siguiente reconcilia.
 
 on:
   schedule:
-    - cron: "0 3 * * *" # 03:00 UTC diario (ajústalo a tu gusto)
+    - cron: "0 4 * * *" # 04:00 UTC ≈ 23:00 GMT-5 (ajústalo)
   workflow_dispatch: {}
 
 permissions:
@@ -25,28 +26,32 @@ env:
 jobs:
   down:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform
     steps:
+      - uses: actions/checkout@v4
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.7.5"
 
-      - name: Escalar API a 0 y borrar ALB
+      - name: Terraform init
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" \
+            -backend-config="key=dev/terraform.tfstate" \
+            -backend-config="region=${{ env.AWS_REGION }}" \
+            -backend-config="dynamodb_table=${{ vars.TF_LOCK_TABLE }}"
+
+      - name: Apagar (enabled=false)
         run: |
           set -euo pipefail
           export AWS_PAGER=""
-
-          echo ">> API desired-count -> 0"
-          aws ecs update-service --cluster "${NAME}-cluster" --service "${NAME}-api" \
-            --desired-count 0 >/dev/null 2>&1 || echo "   (servicio no encontrado / ya en 0)"
-
-          echo ">> borrar ALB (mata su coste horario + IPv4)"
-          ALB_ARN=$(aws elbv2 describe-load-balancers --names "${NAME}-alb" \
-            --query 'LoadBalancers[0].LoadBalancerArn' --output text 2>/dev/null || echo "none")
-          if [ "$ALB_ARN" != "none" ] && [ -n "$ALB_ARN" ] && [ "$ALB_ARN" != "None" ]; then
-            aws elbv2 delete-load-balancer --load-balancer-arn "$ALB_ARN"
-            echo "   ALB borrado"
-          else
-            echo "   ALB ya no existe"
-          fi
-          echo "listo: entorno apagado. CloudFront sigue (dominio estable)."
+          IMG=$(aws ecr describe-images --repository-name "${NAME}-app" \
+            --query 'sort_by(imageDetails,&imagePushedAt)[-1].imageTags[0]' --output text)
+          terraform apply -input=false -auto-approve -var="enabled=false" -var="image_tag=$IMG"
+          echo "Entorno apagado: ALB, IPv4 y Fargate destruidos. Aurora pausada."
